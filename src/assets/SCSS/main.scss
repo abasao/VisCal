@@ -1,0 +1,99 @@
+* {
+    box-sizing: inherit;
+}
+body{
+  top: 0;
+  left:0;
+  box-sizing: border-box;
+  background-color: rgba(218, 165, 32, 0.3);
+
+}
+#app {
+    margin-top: 8rem;
+    text-align: center;
+    @at-root {
+        .flex{
+            display: flex;
+            justify-content: center;
+        }
+        .cursor {
+            user-select: none;
+            cursor: pointer;
+        }
+        .margin-h {
+            margin: 0 2px;
+        }
+        .margin-v {
+            margin-top: 2px;
+            margin-bottom: 2px;
+        }
+        .math {
+            display: flex;
+            justify-content: center;
+            color: hsl(200, 100%, 20%);
+        }
+        .math--object {
+            position: relative;
+        }
+        .term-flex {
+            display: flex;
+            align-items: center;
+        }
+        .object-style {
+            background-color: #ccc;
+            font-size: 1.5rem;
+            border-radius: 5px;
+            padding: 2px 10px;
+        }
+        .object-value:hover {
+            color: black;
+        }
+        .object-margin{
+            margin: 0 5px;
+        }
+        .object-hover:hover {
+            background-color: hsl(100, 50%, 80%);
+        }
+        .object-factor {
+            position: absolute;
+            background-color: steelblue;
+            top: 1.5rem;
+            border-radius: 5px;
+            padding: 2px 2px;
+            display: flex;
+            flex-direction: column;
+        }
+    }
+    @at-root {
+        .control {
+            width: 400px;
+            margin: 0 auto;
+        }
+        .flex-col {
+            display: flex;
+            flex-direction: column;
+        }
+        .control--btn {
+            width: 50px;
+            height: 35px;
+            border: 1px solid rgba( 0, 100, 255, 1);
+            background-color: white;
+        }
+        .btn-style {
+            font-size: 1.5rem;
+            border-radius: 5px;
+        }
+        .btn-value {
+            align-self: center;
+        }
+        .btn-top{
+            flex-basis: 15%;
+            background-color: firebrick;
+            color: white;
+            text-align: center;
+        }
+        .preview-style {
+            background-color: rgba(30, 143, 255, 0.555);
+        }
+    }
+}
