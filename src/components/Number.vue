@@ -14,7 +14,7 @@
             <div @click="multiply">{{numberProp.op}}</div> 
             (
             <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
-                <div class="object-value " @click='addNext(num.id)' v-if="showOp(index, num.sign)">
+                <div class="object-value " @click='add(num.id)' v-if="showOp(index, num.sign)">
                         {{num.sign}}
                 </div>
                 <number :numberProp='num'/>
@@ -27,7 +27,7 @@
 <script>
 'use strict'
 import { EventBus } from "../assets/JS/event-bus";
-import state from "../assets/JS/event-handler"
+// import state from "../assets/JS/event-handler"
 
 export default {
     name: 'number',
@@ -38,7 +38,7 @@ export default {
         }
     },
     methods: {
-        addNext(id){
+        add(id){
             this.functions.add(id[id.length-1])
         },
         multiply(){
@@ -59,10 +59,6 @@ export default {
         }
     },
     created(){
-        // state.state_nr = {
-        //     name: 'number component',
-        //     size: '20 MB'
-        // }
     }
 }
 </script>

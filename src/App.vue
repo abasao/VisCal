@@ -10,7 +10,7 @@
 import Expression from "./components/Expression";
 import Control from "./components/Control";
 import { EventBus } from "./assets/JS/event-bus";
-// import state from "./assets/JS/event-handler"
+import State from "./assets/JS/state-store"
 import { init } from "./assets/JS/event-handler"
 
 export default {
@@ -20,8 +20,8 @@ export default {
     'control': Control    
   },
   created () {
+    State.createState();
     init()
-    // EventBus.$emit('test', 1)
   },
   data(){
     return {
