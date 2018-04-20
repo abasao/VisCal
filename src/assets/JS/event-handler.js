@@ -84,7 +84,6 @@ export function init(){
             if(p.nested[0].nested[0].value === 1){
                 console.log('changing sign on first nest')
                 p.nested[0].nested[0].sign = x;
-                // p.nested[0].addChild(1).nested[0].sign = x;
                 console.log(p.nested[0].nested[0].sign)
             }
             console.log('creating extra nest')
