@@ -5,15 +5,17 @@ import mod from "./methods";
 const State = {
     Store: {
         numbers:[],
-        default: { value: false, nested: false, sign: '+', op: '×' },
-        aN: { value: false, nested: false, sign: '+', op: '×' },
+        // default: { value: false, nested: false, sign: '+', op: '×' },
+        // aN: { value: false, nested: false, sign: '+', op: '×' },
+        aN: (new Num()).setRoot('edit'),
         btn: {
             btn_num: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
             btn_op: ['+', '−', '×', '÷'],
             btn_spec: ['(  )', 'C']
         },
         reset(){
-            this.aN = Object.assign({}, this.default)
+            // this.aN = Object.assign({}, this.default)
+            this.aN.nested = [];
         }      
     },
     stateHistory: {},

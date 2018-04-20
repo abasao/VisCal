@@ -18,21 +18,36 @@ export class Num {
         this.id.push(id||0);
         return this
     }
-    addExpression(exp){
+    addExpression(...exp){
         if(typeof exp !== 'object') return
-        this.nested.push(exp)
+        this.nested.push(...exp)
         this.setId(this.id)
     }
     addChild(...param) {
         if (!param) return
         param.forEach(x => {
             x = typeof x === 'object' ? x : [x]
-            this.nested.push((new Num(...x, this.nested.length)))
+            this.nested.push((new Num(...x)))
         })
         this.setId(this.id);
         return this
     }
-
+    removeChild(i){
+        if(!i) return
+        this.nested.splice(i,1)
+        this.setId(this.id);        
+    }
+    toInt(){
+        console.log(typeof this.value)
+        console.log('value type')
+        this.value = parseInt(this.value, 10);
+        console.log(typeof this.value)
+        if(this.nested.length > 0 ){
+            this.nested.forEach(element => {
+                element.toInt()
+            });
+        }
+    }
     setId(id) {
         if (!id) return
         this.id = typeof id === 'object' ? id : [id];

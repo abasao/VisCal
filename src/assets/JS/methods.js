@@ -2,11 +2,11 @@
 export default (() => {
     return {
         factorArray: [2, 3, 5, 7, 11, 13, 17],
-        // idSeq: 1000 + Math.floor(Math.random() * 200),
-        // counter: 0,
+
         isPrime(value) {
             return this.factorArray.includes(value, 1)
         },
+
         primeFactor(value) {
             if (this.factorArray.indexOf(value) !== -1) {
                 return [value]
@@ -19,9 +19,11 @@ export default (() => {
             }
             return [value]
         },
+
         factorize(value) {
-            return [...this.primeFactor(value)];
+            return [...this.primeFactor(parseInt(value, 10))];
         },
+
         rng(n, max = 10, min = 0) {
         let array = Array(n)
         for (let i = 0; i < n; i++) {
@@ -48,5 +50,16 @@ export default (() => {
             }
             return this.finder(A[C[0]], C.slice(1))
         },
+
+        sanitize(obj, parent, i = 0){
+        if (obj.value === 1) {
+            parent.removeChild(i)
+        }
+        else if (obj.nested.length > 0) {
+            obj.nested.forEach((x, i) => {
+                this.sanitize(x, obj, i)
+            })
+        }
+    }        
     }
 })()

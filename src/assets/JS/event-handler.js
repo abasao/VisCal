@@ -3,54 +3,95 @@
 import { EventBus } from "./event-bus";
 import {Store} from "./state-store";
 import { Num } from "./number-object"
+import mod from "./methods"
 
 export function init(){
     EventBus.$on('enter', x => {
+        console.group('enter group')
         let p = Store.aN
-        if (!p.value) return
+        console.log(p)
+        if (p.nested[0].value === 1) return Store.reset()
 
-        let nest = typeof p.nested === 'object' ? p.nested.length : false
-
-        if(nest && typeof p.nested[nest-1] === 'object') p.nested.pop()
-
-        let newNum = new Num(parseInt(p.value, 10), [Store.numbers.length]);
-
-        if (nest) {
-            p.nested = p.nested.map(num => {
-                return parseInt(num, 10)
-            });
-            newNum.addChild(...p.nested)
-        }
-        Store.numbers[0].addExpression(newNum)
-        Store.reset();
-    })
-
-    EventBus.$on('btnNumber', x => {
-        let p = Store.aN;
-        if (p.value === false) {
-            p.value = x;
-        } else if (!p.nested) {
-            p.value += x;
-        } else if (p.nested) {
-            if (typeof p.nested === "object") {
-                let n = p.nested.length;
-                p.nested.splice(n - 1, 1, p.nested[n - 1] + x);
-            } else if (p.nested === true) {
-                p.nested = [x];
+        function sanitize(obj, parent, i=0){
+            console.log('run sanitizer')
+            if(obj.value === 1){
+                console.log('removing child')
+                parent.removeChild(i)
+            }
+            else if(obj.nested.length > 0){
+                obj.nested.forEach((x,i)=>{
+                    sanitize(x, obj, i)
+                })
             }
         }
+
+        mod.sanitize(p,0)
+        console.log(p)
+
+        Store.numbers[0].addExpression(...p.nested)
+        Store.reset();        
+        console.log('return from enter')
+        console.groupEnd()
+        return
+    })
+    EventBus.$on('btnNumber', x => {
+        let p = Store.aN;
+
+        console.group('number group')        
+        if (p.nested.length === 0) {
+            console.log('add child')            
+            p.addChild(x);
+            console.log(p)
+        } else if (p.nested[0].nested.length === 0) {
+            console.log('add digit')
+            if (p.nested[0].value === 1){
+                p.nested[0].value = '';
+            }
+            p.nested[0].value += x;
+            console.log(p.nested[0])
+        } else if (p.nested[0].nested.length > 0) {
+            console.log('the nest')
+            let n = p.nested[0].nested;
+            let len = n.length;
+            if(n[len-1].value === 1){
+                console.log('has value 1')
+                n[len - 1].value = x;
+                console.log(n)
+            } else if (typeof n[len - 1].value === 'string'){
+                console.log('has string value')
+                n[len - 1].value += x;
+                console.log(n)
+            }
+        }
+        console.groupEnd()
     })
 
     EventBus.$on('btnOp', x => {
         let p = Store.aN
-        if (!['+', '−'].includes(x) && p.value === false) return
-        if (['+', '−'].includes(x) && p.value === false) {
-            p.sign = x;
-        } else if (['×', '÷'].includes(x) && p.nested === false) {
-            p.op = x;
-            p.nested = true;
-        } else if (['+', '−'].includes(x) && typeof p.nested === 'object') {
-            p.nested.push([])
+        console.group('Op group')
+        if (['×', '÷'].includes(x) && p.nested.length === 0) return
+        if (['+', '−'].includes(x) && p.nested.length === 0) {
+            console.log('sign')
+            p.addChild(1).nested[0].sign = x;
+            console.log(p.nested[0])
+        } else if (['×', '÷'].includes(x) && p.nested[0].nested.length === 0) {
+            console.log('changing operator')
+            p.nested[0].op = x;
+            p.nested[0].addChild(1);
+            console.log(p.nested[0].op)
+        } else if (['+', '−'].includes(x) && p.nested[0].nested.length > 0) {
+            console.log('inside +/- operator')
+            if(p.nested[0].nested[0].value === 1){
+                console.log('changing sign on first nest')
+                p.nested[0].nested[0].sign = x;
+                // p.nested[0].addChild(1).nested[0].sign = x;
+                console.log(p.nested[0].nested[0].sign)
+            }
+            console.log('creating extra nest')
+            p.nested[0].addChild([1, false, x])
+            console.log(p.nested[0].nested)
         }
-    })    
+        console.groupEnd()
+    })  
+
 }

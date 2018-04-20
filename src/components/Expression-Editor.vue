@@ -1,14 +1,14 @@
 <template>
   <div class="math cursor control preview-style flex">
-      <div class="btn-style btn-value" v-if="store.aN.value">
-          {{store.aN.sign}}{{store.aN.value}}
+      <div class="btn-style btn-value" v-if="nest.length > 0">
+          {{nest[0] | sign}} {{nest[0] | realValue}}
       </div>
-      <div class="btn-style flex" v-if="typeof store.aN.nested === 'object' && store.aN.nested.length > 0">
-        {{store.sign || '×'}} 
+      <div class="btn-style flex" v-if="child">
+        {{nest[0].op || '×'}} 
         <parentheses :bool='showParentheses'>
-            <span class="btn-value margin-h" v-for="(n, i) in store.aN.nested" :key="i">
-                    {{n | empty}}
-                <span class="btn-value"  v-if="i + 1 < store.aN.nested.length">
+            <span class="btn-value margin-h" v-for="(n, i) in child" :key="i">
+                    {{n | realValue}}
+                <span class="btn-value"  v-if="i + 1 < child.length">
                     + 
                 </span>
             </span>
@@ -26,30 +26,46 @@ export default {
     data (){
         return {
             store: {},
+            T: {}
         }
     },
     components:{
         'parentheses': Parentheses
     },
     computed:{
+        nest(){
+            return this.store.aN.nested
+        },
+        child(){
+            if(this.nest.length === 0){ 
+                return false
+            }else if(this.nest[0].nested.length===0){ 
+                return false
+            }
+            return this.nest[0].nested
+        },
         showParentheses(){
-            if(this.store.aN.nested.length > 1){
+            if(this.child && this.child.length > 1){
                 return true
-            }else if(this.store.aN.nested[0].sign !== '+'){
+            }else if(this.child && this.child[0].sign !== '+'){
                 return true
             }
             return false
         }
     },
     filters: {
-        empty(n){
-            if(typeof n === 'string') return n
+        realValue(n){
+            if(n.value !== 1) return n.value
             return ''
         },
+        sign(n){
+            if(n.sign !== '+') return n.sign
+            return ''
+        }
     },
     created (){
         this.store = Store;
-    },
+},
 }
 </script>
 
