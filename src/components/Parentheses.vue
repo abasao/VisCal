@@ -1,10 +1,10 @@
 <template>
   <div class="flex">
-      {{ parenthesis[0] }}
+      {{ parentheses[0] }}
       <slot>
 
       </slot>
-      {{ parenthesis[1] }}
+      {{ parentheses[1] }}
   </div>
 </template>
 
@@ -12,7 +12,7 @@
 export default {
     props:['bool'],
     computed:{
-        parenthesis(){
+        parentheses(){
             return this.bool ? ['(', ')'] : ['','']
         }
     }

@@ -1,15 +1,15 @@
 <template>
   <div class="math cursor control preview-style flex">
       <div class="btn-style btn-value" v-if="store.aN.value">
-          {{store.aN.value}}
+          {{store.aN.sign}}{{store.aN.value}}
       </div>
       <div class="btn-style flex" v-if="typeof store.aN.nested === 'object' && store.aN.nested.length > 0">
-        × 
+        {{store.sign || '×'}} 
         <parentheses :bool='showParentheses'>
-            <span class="btn-value" v-for="(n, i) in store.aN.nested" :key="i">
-                {{n | empty}}
-                <span class="btn-value margin-h" v-if="i + 1 < store.aN.nested.length">
-                    +
+            <span class="btn-value margin-h" v-for="(n, i) in store.aN.nested" :key="i">
+                    {{n | empty}}
+                <span class="btn-value"  v-if="i + 1 < store.aN.nested.length">
+                    + 
                 </span>
             </span>
         </parentheses>        
@@ -33,15 +33,19 @@ export default {
     },
     computed:{
         showParentheses(){
-            if(this.store.aN.nested.length < 2) return false
-            return this.store.aN.nested[0].sign !== '+'
+            if(this.store.aN.nested.length > 1){
+                return true
+            }else if(this.store.aN.nested[0].sign !== '+'){
+                return true
+            }
+            return false
         }
     },
     filters: {
         empty(n){
             if(typeof n === 'string') return n
             return ''
-        }
+        },
     },
     created (){
         this.store = Store;

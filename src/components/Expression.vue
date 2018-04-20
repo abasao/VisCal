@@ -6,8 +6,10 @@
             <div class="object-style" v-if="showOp(index, num.sign)">
                 <span class="btn-value">{{num.sign}}</span>
             </div>
+            
             <number class="object-style object-hover margin-h" 
             v-bind="{numberProp: num, functions: num.methods(num)}"/>
+            
       </div>
   </div>
 </div>

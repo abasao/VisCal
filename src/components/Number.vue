@@ -56,8 +56,13 @@ export default {
     },
     computed: {
         showParentheses(){
-            if(this.numberProp.nested.length < 2) return false
-            return this.numberProp.nested[0].sign !== '+'
+            if(this.numberProp.nested.length > 1){
+                return true
+            }else if(this.numberProp.nested[0].sign !== '+'){
+                return true
+            }
+
+            return false
         },
         showNest(){
             if(this.numberProp.length < 1) return false
