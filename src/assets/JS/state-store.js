@@ -22,11 +22,16 @@ const State = {
         },
         
     },
+
     createState(){
-        this.Store.numbers = mod.rng(2, 10, 2).map((num, i) => {
-            let newNum = new Num(num, [i]);
-            return newNum.addChild(10, 15, 5)
-        })
+        let l = this.Store.numbers.length;
+        let n = (new Num()).setRoot(l).addChild(...mod.rng(2, 10, 2))
+        this.Store.numbers.push(n);
+
+        // this.Store.numbers = mod.rng(2, 10, 2).map((num, i) => {
+        //     let newNum = new Num(num, [i]);
+        //     return newNum.addChild(10, 15, 5)
+        // })
     }
 }
 

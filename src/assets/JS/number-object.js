@@ -10,14 +10,19 @@ export class Num {
         this.factor = mod.factorize(val);
         this.nested = [];
     }
-    setRoot() {
+    setRoot(id) {
         this.root = true;
         this.value = false;
         this.factor = false;
         this.op = false;
+        this.id.push(id||0);
         return this
     }
-
+    addExpression(exp){
+        if(typeof exp !== 'object') return
+        this.nested.push(exp)
+        this.setId(this.id)
+    }
     addChild(...param) {
         if (!param) return
         param.forEach(x => {

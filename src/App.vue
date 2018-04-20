@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <expression/>
+
+    <div v-for="(n, i) in numberStore" :key="i">
+      <expression v-bind="{numbers: n.nested, stateIndex: i}"/>
+    </div>
     <control/>
   </div>
 </template>
@@ -19,13 +22,15 @@ export default {
     Expression,
     'control': Control    
   },
-  created () {
-    State.createState();
-    init()
-  },
   data(){
     return {
+      numberStore: []
     }
+  },
+  created () {
+    State.createState();
+    this.numberStore = State.Store.numbers;
+    init();
   },
 }
 </script>
