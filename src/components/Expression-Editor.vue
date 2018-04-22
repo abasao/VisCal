@@ -7,10 +7,15 @@
         {{nest[0].op || '×'}} 
         <parentheses :bool='showParentheses'>
             <span class="btn-value margin-h" v-for="(n, i) in child" :key="i">
-                    {{n | realValue}}
-                <span class="btn-value"  v-if="i + 1 < child.length">
-                    + 
+                <span class="btn-value"  v-if="showSign(i)">
+                    {{n.sign}}
                 </span>
+                <span class="btn-value" v-else-if="showSign(i, n.sign)">
+                    <span class="negative-sign" >
+                        {{n.sign}}
+                    </span>
+                </span>
+                    {{n | realValue}}
             </span>
         </parentheses>        
       </div>
@@ -32,6 +37,14 @@ export default {
     components:{
         'parentheses': Parentheses
     },
+    methods: {
+        showSign(i,...sign){
+            if(typeof i === 'number' && sign.length === 0){
+                return i !== 0
+            }
+            return i === 0 && sign[0] !== '+'
+        },
+    },
     computed:{
         nest(){
             return this.store.aN.nested
@@ -51,7 +64,7 @@ export default {
                 return true
             }
             return false
-        }
+        },        
     },
     filters: {
         realValue(n){

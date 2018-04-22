@@ -7,31 +7,32 @@ import mod from "./methods"
 
 export function init(){
     EventBus.$on('enter', x => {
-        console.group('enter group')
+        // console.group('enter group')
         let p = Store.aN
-        console.log(p)
+        // console.log(p)
         if (p.nested[0].value === 1) return Store.reset()
-
-        function sanitize(obj, parent, i=0){
+        //the index remains, while each remove updated nest index
+        function sanitize(obj, parent, i = false){
             console.log('run sanitizer')
             if(obj.value === 1){
                 console.log('removing child')
-                parent.removeChild(i)
+                console.log('compare index vs id: ' + i + "--" + obj.id[obj.id.length - 1])
+                parent.removeChild(obj.id[obj.id.length-1])
             }
             else if(obj.nested.length > 0){
-                obj.nested.forEach((x,i)=>{
+                obj.nested.forEach((x, i)=>{
                     sanitize(x, obj, i)
                 })
             }
         }
 
-        mod.sanitize(p,0)
-        console.log(p)
+        sanitize(p,0)
+        // console.log(p)
 
         Store.numbers[0].addExpression(...p.nested)
         Store.reset();        
         console.log('return from enter')
-        console.groupEnd()
+        // console.groupEnd()
         return
     })
     EventBus.$on('btnNumber', x => {
@@ -81,14 +82,16 @@ export function init(){
             console.log(p.nested[0].op)
         } else if (['+', '−'].includes(x) && p.nested[0].nested.length > 0) {
             console.log('inside +/- operator')
-            if(p.nested[0].nested[0].value === 1){
+            let len = p.nested[0].nested.length;
+            if(len === 1 && p.nested[0].nested[0].value === 1){
                 console.log('changing sign on first nest')
                 p.nested[0].nested[0].sign = x;
                 console.log(p.nested[0].nested[0].sign)
+            } else if (p.nested[0].nested[len-1].value !== 0){
+                console.log('creating extra nest')
+                p.nested[0].addChild([1, false, x])
+                console.log(p.nested[0].nested)
             }
-            console.log('creating extra nest')
-            p.nested[0].addChild([1, false, x])
-            console.log(p.nested[0].nested)
         }
         console.groupEnd()
     })  

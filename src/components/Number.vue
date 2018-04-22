@@ -15,13 +15,18 @@
         <div class="flex" v-if="showNest" >
             <div @click="multiply">{{numberProp.op}}</div> 
             
-            <parentheses :bool='showParentheses'>              
-            <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
-                <div class="object-value " @click='add(num.id)' v-if="showOp(index, num.sign)">
+            <parentheses :bool='showParentheses'>
+                <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
+                    <div class="object-value " @click='add(num.id)' v-if="showSign(index)">
                         {{num.sign}}
+                    </div>
+                    <div v-else-if="showSign(index, num.sign)">
+                        <span class="negative-sign" >
+                            {{num.sign}}
+                        </span>
+                    </div>
+                    <number v-bind="{numberProp: num, functions: num.methods(num)}"/>
                 </div>
-                <number v-bind="{numberProp: num, functions: num.methods(num)}"/>
-            </div>
             </parentheses>              
             
         </div>      
@@ -50,25 +55,33 @@ export default {
         multiply(){
             this.numberProp.Commander('multiply')
         },
-        showOp(i, sign){
-            return i!==0 || (i===0 && sign !== '+')
+        showSign(i,...sign){
+            if(typeof i === 'number' && sign.length === 0){  
+                return i!==0
+            }
+            return i === 0 && sign[0] !== '+'
         },
     },
     computed: {
         showParentheses(){
             if(this.numberProp.nested.length > 1){
                 return true
-            }else if(this.numberProp.nested[0].sign !== '+'){
+            }else if(this.numberProp.nested.length === 1 && this.numberProp.nested[0].sign !== '+'){
                 return true
             }
 
             return false
         },
         showNest(){
-            if(this.numberProp.length < 1) return false
+            if(this.numberProp.nested.length < 1) return false
             return this.numberProp.nested.length > 0
         }
     },
 }
 </script>
+<style lang="scss">
+.negative-sign {
+    opacity: 0.3;
+}
+</style>
 

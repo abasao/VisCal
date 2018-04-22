@@ -33,9 +33,12 @@ export class Num {
         return this
     }
     removeChild(i){
-        if(!i) return
+        if(typeof i !== 'number') return
+        console.log('removing i: '+ i)
+        console.log('length: '+this.nested.length)
+        console.log(this.nested[i])
         this.nested.splice(i,1)
-        this.setId(this.id);        
+        this.setId(this.id);    
     }
     toInt(){
         console.log(typeof this.value)
@@ -64,7 +67,7 @@ export class Num {
     siblingOperator(f = false, i){
         if(!f && !i) return
         let n = this.nested;
-        n[i-1].setValue(f(n[i-1].value, n[i].value))
+        n[i - 1].setValue(f(parseInt(n[i - 1].value, 10), parseInt(n[i].value, 10)))
         n.splice(i,1);
         this.setId(this.id);
     }
@@ -94,7 +97,7 @@ export class Num {
     }
     methods(that){
         return {
-            add: this.siblingOperator.bind(that, (x,y) => x+y),
+            add: this.siblingOperator.bind(that, (x,y) => x + y),
             sub: this.siblingOperator.bind(that, (x, y) => x - y),
         }
     }
