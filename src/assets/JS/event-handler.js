@@ -15,18 +15,19 @@ export function init(){
         function sanitize(obj, parent, i = false){
             console.log('run sanitizer')
             if(obj.value === 1){
-                console.log('removing child')
-                console.log('compare index vs id: ' + i + "--" + obj.id[obj.id.length - 1])
-                parent.removeChild(obj.id[obj.id.length-1])
+                console.log('marking child for removal')
+                obj.setRemove(true);
+                // parent.removeChild(obj.id[obj.id.length-1])
             }
             else if(obj.nested.length > 0){
                 obj.nested.forEach((x, i)=>{
                     sanitize(x, obj, i)
                 })
-            }
+            }   
         }
 
         sanitize(p,0)
+        p.nested[0].clearRemoved()
         // console.log(p)
 
         Store.numbers[0].addExpression(...p.nested)
@@ -80,7 +81,8 @@ export function init(){
             p.nested[0].op = x;
             p.nested[0].addChild(1);
             console.log(p.nested[0].op)
-        } else if (['+', '−'].includes(x) && p.nested[0].nested.length > 0) {
+        } else if (['+', '−'].includes(x) && p.nested[0].nested.length > 0 ) {
+            if (p.nested[0].nested[p.nested[0].nested.length-1].value === 1) return
             console.log('inside +/- operator')
             let len = p.nested[0].nested.length;
             if(len === 1 && p.nested[0].nested[0].value === 1){

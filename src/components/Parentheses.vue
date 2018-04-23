@@ -16,6 +16,5 @@ export default {
             return this.bool ? ['(', ')'] : ['','']
         }
     }
-
 }
 </script>

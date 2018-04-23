@@ -3,6 +3,7 @@ import mod from ".//methods";
 export class Num {
     constructor(val = 1, id = false, sign = '+', operator = '×') {
         this.root = false;
+        this.remove = false;
         this.id = id || [];
         this.value = val;
         this.sign = sign;
@@ -10,19 +11,23 @@ export class Num {
         this.factor = mod.factorize(val);
         this.nested = [];
     }
+
     setRoot(id) {
         this.root = true;
         this.value = false;
         this.factor = false;
+        this.remove = false;
         this.op = false;
         this.id.push(id||0);
         return this
     }
+
     addExpression(...exp){
         if(typeof exp !== 'object') return
         this.nested.push(...exp)
         this.setId(this.id)
     }
+
     addChild(...param) {
         if (!param) return
         param.forEach(x => {
@@ -32,25 +37,26 @@ export class Num {
         this.setId(this.id);
         return this
     }
-    removeChild(i){
-        if(typeof i !== 'number') return
-        console.log('removing i: '+ i)
-        console.log('length: '+this.nested.length)
-        console.log(this.nested[i])
-        this.nested.splice(i,1)
-        this.setId(this.id);    
+
+    clearRemoved(){
+        if(this.nested.length < 1) return
+        this.nested = this.nested.filter(x => x.remove !== true);
+        this.setId(this.id);
     }
+
+    setRemove(value){
+        this.remove = value || this.remove;
+    }
+
     toInt(){
-        console.log(typeof this.value)
-        console.log('value type')
         this.value = parseInt(this.value, 10);
-        console.log(typeof this.value)
         if(this.nested.length > 0 ){
             this.nested.forEach(element => {
                 element.toInt()
             });
         }
     }
+
     setId(id) {
         if (!id) return
         this.id = typeof id === 'object' ? id : [id];
@@ -60,10 +66,12 @@ export class Num {
             })
         }
     }
+
     setValue(value = false, f = false){
         this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
         this.factor = mod.factorize(this.value);
     }
+
     siblingOperator(f = false, i){
         if(!f && !i) return
         let n = this.nested;
