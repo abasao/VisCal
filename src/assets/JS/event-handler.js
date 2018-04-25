@@ -82,13 +82,15 @@ export function init(){
             p.nested[0].addChild(1);
             console.log(p.nested[0].op)
         } else if (['+', '−'].includes(x) && p.nested[0].nested.length > 0 ) {
-            if (p.nested[0].nested[p.nested[0].nested.length-1].value === 1) return
             console.log('inside +/- operator')
             let len = p.nested[0].nested.length;
-            if(len === 1 && p.nested[0].nested[0].value === 1){
-                console.log('changing sign on first nest')
-                p.nested[0].nested[0].sign = x;
-                console.log(p.nested[0].nested[0].sign)
+            if (p.nested[0].nested[len-1].value === 1){
+                if(len === 1){
+                    console.log('changing sign on first nest')
+                    p.nested[0].nested[0].sign = x;
+                    console.log(p.nested[0].nested[0].sign)
+                }
+                return
             } else if (p.nested[0].nested[len-1].value !== 0){
                 console.log('creating extra nest')
                 p.nested[0].addChild([1, false, x])

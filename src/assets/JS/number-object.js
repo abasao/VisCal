@@ -56,7 +56,15 @@ export class Num {
             });
         }
     }
-
+    //test this if you want
+    evaluateSign(){
+        this.value *= this.value > 0 ? 1 : -1
+        if(this.nested.length > 0){
+            this.nested.forEach(element => {
+                element.evaluateSign()
+            });
+        }
+    }
     setId(id) {
         if (!id) return
         this.id = typeof id === 'object' ? id : [id];
@@ -77,6 +85,8 @@ export class Num {
         let n = this.nested;
         n[i - 1].setValue(f(parseInt(n[i - 1].value, 10), parseInt(n[i].value, 10)))
         n.splice(i,1);
+        //and this
+        // this.evaluateSign();
         this.setId(this.id);
     }
     parentOperator(f = false){
