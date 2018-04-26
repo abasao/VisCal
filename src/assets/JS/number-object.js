@@ -1,7 +1,7 @@
 'use strict'
 import mod from ".//methods";
 export class Num {
-    constructor(val = 1, id = false, sign = '+', operator = '×') {
+    constructor(val = 1, id = false, sign = '+', operator = '*') {
         this.root = false;
         this.remove = false;
         this.id = id || [];
@@ -39,9 +39,10 @@ export class Num {
     }
 
     clearRemoved(){
-        if(this.nested.length < 1) return
+        if(this.nested.length < 1) this
         this.nested = this.nested.filter(x => x.remove !== true);
         this.setId(this.id);
+        return this
     }
 
     setRemove(value){
@@ -49,21 +50,25 @@ export class Num {
     }
 
     toInt(){
+        console.log(typeof this.value)
         this.value = parseInt(this.value, 10);
+        console.log(typeof this.value)
         if(this.nested.length > 0 ){
             this.nested.forEach(element => {
                 element.toInt()
             });
         }
+        return this
     }
-    //test this if you want
+    //only for use by addExpression
     evaluateSign(){
-        this.value *= this.value > 0 ? 1 : -1
+        this.value = this.sign === '+' ? this.value : -1*this.value
         if(this.nested.length > 0){
             this.nested.forEach(element => {
                 element.evaluateSign()
             });
         }
+        return this
     }
     setId(id) {
         if (!id) return
@@ -85,8 +90,6 @@ export class Num {
         let n = this.nested;
         n[i - 1].setValue(f(parseInt(n[i - 1].value, 10), parseInt(n[i].value, 10)))
         n.splice(i,1);
-        //and this
-        // this.evaluateSign();
         this.setId(this.id);
     }
     parentOperator(f = false){

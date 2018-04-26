@@ -39,13 +39,27 @@ export default {
     methods: {
         btnClick(btn){
             if(this.btn_num.includes(btn)){
-                EventBus.$emit('btnNumber', btn)
+                EventBus.$emit('btnNumber', btn);
             }else if(this.btn_op.includes(btn)){
-                EventBus.$emit('btnOp', btn)
+                switch (btn) {
+                    case '×':
+                        EventBus.$emit('btnOp', '*');
+                        break;
+                    case '÷':
+                        EventBus.$emit('btnOp', '/');
+                        break;
+                    case '−':
+                        EventBus.$emit('btnOp', '-');
+                        break;
+                    default:
+                        EventBus.$emit('btnOp', '+');
+                        break;
+                }
             }else if(this.btn_spec.includes(btn)){
                 EventBus.$emit('btnSpec', btn)
-            }                        
+            }                
         },
+
         enterEvent(){
             EventBus.$emit('enter', 'nothing')
         }

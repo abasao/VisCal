@@ -3,8 +3,8 @@
   <edit/>
   <div class="math margin-v">
       <div class="term-flex term-style cursor" v-for="(num, index) in numbers" :key="index">
-            <div class="object-style" v-if="showOp(index, num.sign)">
-                <span class="btn-value">{{num.sign}}</span>
+            <div class="object-style" v-if="showSign(index, num.value)">
+                <span class="btn-value">{{num.value | sign}}</span>
             </div>
             
             <number class="object-style object-hover margin-h" 
@@ -29,10 +29,15 @@ export default {
         }
     },
     methods: {
-        showOp(i, sign){
-            return i!==0 || (i===0 && sign !== '+')
+        showSign(i, value){
+            return i!==0 || (i===0 && value < 0)
         },  
     },
+    filters: {
+        sign(x){
+            return x < 0 ? '−' : '+'
+        },
+    },            
     components: {
         'number': NumberComp,
         'edit': Editor

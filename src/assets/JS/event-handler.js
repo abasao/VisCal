@@ -17,7 +17,6 @@ export function init(){
             if(obj.value === 1){
                 console.log('marking child for removal')
                 obj.setRemove(true);
-                // parent.removeChild(obj.id[obj.id.length-1])
             }
             else if(obj.nested.length > 0){
                 obj.nested.forEach((x, i)=>{
@@ -27,9 +26,7 @@ export function init(){
         }
 
         sanitize(p,0)
-        p.nested[0].clearRemoved()
-        // console.log(p)
-
+        p.nested[0].clearRemoved().toInt().evaluateSign()
         Store.numbers[0].addExpression(...p.nested)
         Store.reset();        
         console.log('return from enter')
@@ -71,17 +68,17 @@ export function init(){
     EventBus.$on('btnOp', x => {
         let p = Store.aN
         console.group('Op group')
-        if (['×', '÷'].includes(x) && p.nested.length === 0) return
-        if (['+', '−'].includes(x) && p.nested.length === 0) {
+        if (['*', '/'].includes(x) && p.nested.length === 0) return
+        if (['+', '-'].includes(x) && p.nested.length === 0) {
             console.log('sign')
             p.addChild(1).nested[0].sign = x;
             console.log(p.nested[0])
-        } else if (['×', '÷'].includes(x) && p.nested[0].nested.length === 0) {
+        } else if (['*', '/'].includes(x) && p.nested[0].nested.length === 0) {
             console.log('changing operator')
             p.nested[0].op = x;
             p.nested[0].addChild(1);
             console.log(p.nested[0].op)
-        } else if (['+', '−'].includes(x) && p.nested[0].nested.length > 0 ) {
+        } else if (['+', '-'].includes(x) && p.nested[0].nested.length > 0 ) {
             console.log('inside +/- operator')
             let len = p.nested[0].nested.length;
             if (p.nested[0].nested[len-1].value === 1){
