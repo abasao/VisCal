@@ -10,6 +10,7 @@ export class Num {
         this.op = operator;
         this.factor = mod.factorize(val);
         this.nested = [];
+        this.parentMethod;
     }
 
     setRoot(id) {
@@ -21,11 +22,12 @@ export class Num {
         this.id.push(id||0);
         return this
     }
-
-    addExpression(...exp){
+    //accepts single array with all terms inside, like this.nested
+    addExpression(exp, start = false, replace = 0){
         if(typeof exp !== 'object') return
-        this.nested.push(...exp)
+        this.nested.splice(start || this.nested.length, replace, ...exp)
         this.setId(this.id)
+        this.setParentMethod()
     }
 
     addChild(...param) {
@@ -35,6 +37,7 @@ export class Num {
             this.nested.push((new Num(...x)))
         })
         this.setId(this.id);
+        this.setParentMethod();
         return this
     }
 
@@ -79,6 +82,17 @@ export class Num {
             })
         }
     }
+    setParentMethod(parent = false){
+        if(typeof parent === 'function'){
+            this.parentMethod = parent;
+        }
+        console.log('setting parent method')
+        if (this.nested.length > 0) {
+            this.nested.forEach((child) => {
+                child.setParentMethod(this.addExpression.bind(this))
+            })
+        }        
+    }
 
     setValue(value = false, f = false){
         this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
@@ -88,6 +102,7 @@ export class Num {
     siblingOperator(f = false, i){
         if(!f && !i) return
         let n = this.nested;
+        if (n[i - 1].nested.length > 0 || n[i].nested.length>0) return
         n[i - 1].setValue(f(parseInt(n[i - 1].value, 10), parseInt(n[i].value, 10)))
         n.splice(i,1);
         this.setId(this.id);
@@ -95,7 +110,7 @@ export class Num {
     parentOperator(f = false){
         if(!f && this.nested && this.nested.length < 1 ) return
         this.nested.forEach(x => x.setValue(false, f.bind(null, this.value)))
-        this.setValue(1);
+        this.parentMethod(this.nested, this.id.pop(), 1)
     }
     Commander(command){
         switch (command) {
@@ -116,10 +131,10 @@ export class Num {
                 break;
         }
     }
-    methods(that){
+    methods(){
         return {
-            add: this.siblingOperator.bind(that, (x,y) => x + y),
-            sub: this.siblingOperator.bind(that, (x, y) => x - y),
+            add: this.siblingOperator.bind(this, (x,y) => x + y),
+            sub: this.siblingOperator.bind(this, (x, y) => x - y),
         }
     }
 }

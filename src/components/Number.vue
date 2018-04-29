@@ -1,8 +1,8 @@
 <template>
     <div>
         <!-- implement default component behavior -->        
-        <div class="flex" v-if="normal">
-            <div class="math--object" @click='showFactor=!showFactor'>
+        <div class="" v-if="normal" :class="{flex: root, flex: !root, lmao: !true}">
+            <div class="math--object" @click='showFactor=!showFactor' :hidden='root'>
                 <!-- actual number value -->
                 <div class="object-value object-margin">
                     {{numberProp.value | absolute}}
@@ -14,8 +14,9 @@
                     </div>
                 </div>
             </div>
-            <div class="flex" v-if="showNest" >
-                <div @click="doOperation(true, numberProp.op)">
+
+            <div class="flex" v-if="showNest">
+                <div @click="doOperation(true, numberProp.op)" :hidden='root'>
                     {{numberProp.op | operator}}
                 </div> 
                 <!-- implement parentheses nest -->
@@ -29,7 +30,7 @@
                                 {{num.value | sign}}
                             </span>
                         </div>
-                        <number v-bind="{numberProp: num, functions: num.methods(num)}"/>
+                        <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
                     </div>
                 </parentheses>                 
             </div>
@@ -50,7 +51,7 @@ import Parentheses from "./Parentheses";
 
 export default {
     name: 'number',
-    props: ['numberProp', 'functions'],
+    props: ['numberProp', 'functions', 'root'],
     components: {
         'parentheses': Parentheses
     },
@@ -100,6 +101,7 @@ export default {
     },
     computed: {
         showParentheses(){
+            if(this.root === true) return false
             if(this.numberProp.nested.length > 1){
                 return true
             }else if(this.numberProp.nested.length === 1 && this.numberProp.nested[0].value < 0){
@@ -114,6 +116,10 @@ export default {
         },
         normal(){
             return true
+        },
+        fraction(){
+            if(this.root) return 'flex'
+            return 'lol'
         }
     },
     filters: {
@@ -151,6 +157,17 @@ export default {
 <style lang="scss">
 .negative-sign {
     opacity: 0.3;
+}
+.lol{
+    border: 2px solid red;
+}
+.lmao{
+    border: 2px solid blue;
+    display: flex;
+    flex-direction: column!important;
+    // flex-wrap: wrap;
+
+
 }
 </style>
 

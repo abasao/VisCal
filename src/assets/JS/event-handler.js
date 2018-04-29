@@ -27,7 +27,7 @@ export function init(){
 
         sanitize(p,0)
         p.nested[0].clearRemoved().toInt().evaluateSign()
-        Store.numbers[0].addExpression(...p.nested)
+        Store.numbers[0].addExpression(p.nested)
         Store.reset();        
         console.log('return from enter')
         // console.groupEnd()
