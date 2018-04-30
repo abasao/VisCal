@@ -28,6 +28,7 @@ export class Num {
         this.nested.splice(start || this.nested.length, replace, ...exp)
         this.setId(this.id)
         this.setParentMethod()
+        this.setValue()
     }
 
     addChild(...param) {
@@ -53,9 +54,7 @@ export class Num {
     }
 
     toInt(){
-        console.log(typeof this.value)
         this.value = parseInt(this.value, 10);
-        console.log(typeof this.value)
         if(this.nested.length > 0 ){
             this.nested.forEach(element => {
                 element.toInt()
@@ -86,7 +85,6 @@ export class Num {
         if(typeof parent === 'function'){
             this.parentMethod = parent;
         }
-        console.log('setting parent method')
         if (this.nested.length > 0) {
             this.nested.forEach((child) => {
                 child.setParentMethod(this.addExpression.bind(this))
@@ -97,6 +95,9 @@ export class Num {
     setValue(value = false, f = false){
         this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
         this.factor = mod.factorize(this.value);
+        if(arguments.length === 0 && this.nested.length > 0){
+            this.nested.forEach(x=>x.setValue())
+        }
     }
 
     siblingOperator(f = false, i){

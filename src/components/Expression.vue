@@ -20,29 +20,18 @@
 
 <script>
 'use strict'
+
 import NumberComp from "./Number";
 import Editor from "./Expression-Editor";
 import {Store} from "../assets/JS/state-store";
+
 export default {
-    props: ['numbers', 'stateIndex' /*, 'functions'*/],
+    props: ['numbers', 'stateIndex'],
     data (){
         return {
             store: {},
         }
-    },
-    // methods: {
-    //     showSign(i, value){
-    //         return i!==0 || (i===0 && value < 0)
-    //     },  
-    //     add(i){
-    //         this.functions.add(i)
-    //     }
-    // },
-    // filters: {
-    //     sign(x){
-    //         return x < 0 ? '−' : '+'
-    //     },
-    // },            
+    },           
     components: {
         'number': NumberComp,
         'edit': Editor

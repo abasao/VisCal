@@ -1,11 +1,12 @@
 'use strict'
 export default (() => {
+    function prime(i,array){
+        if(array.length <= i) return array
+        return prime(i + 1, array.filter((x, index) => index === i || x % array[i] !== 0))
+    }
     return {
-        factorArray: [2, 3, 5, 7, 11, 13, 17],
-
-        isPrime(value) {
-            return this.factorArray.includes(value, 1)
-        },
+        factorArray: prime(0, Array(1000).fill(1).map((x,i)=>x*(i+2))),
+        // factorArray: [2, 3, 5, 7, 11, 13, 17],
 
         primeFactor(value) {
             if (this.factorArray.indexOf(value) !== -1) {
@@ -25,24 +26,13 @@ export default (() => {
         },
 
         rng(n, max = 10, min = 0) {
-        let array = Array(n)
-        for (let i = 0; i < n; i++) {
-            array[i] = Math.floor(min + Math.random() * (max + 1))
-        }
-        return array
+            let array = Array(n)
+            for (let i = 0; i < n; i++) {
+                array[i] = Math.floor(min + Math.random() * (max + 1))
+            }
+            return array
         },
-        // createNest(obj, nested){
-        //     obj.nested = nested.map((val, i) => {
-        //         return { id: [...obj.id, ...['nested', i]], value: val, factor: this.factorize(val), nested: false }
-        //     })
-        //     return obj
-        // },
-        // createNumber(num, id){
-        //      return {
-        //         id: id, value: num, factor: this.factorize(num),
-        //         nested: false
-        //         }
-        // },
+
         //(Array||Object, Coordinate) -> A[C1][C2][C3]...[Cn-1]
         finder(A, C){
             if (C.length === 1) {
@@ -52,14 +42,14 @@ export default (() => {
         },
 
         sanitize(obj, parent, i = 0){
-        if (obj.value === 1) {
-            parent.removeChild(i)
-        }
-        else if (obj.nested.length > 0) {
-            obj.nested.forEach((x, i) => {
-                this.sanitize(x, obj, i)
-            })
-        }
-    }        
+            if (obj.value === 1) {
+                parent.removeChild(i)
+            }
+            else if (obj.nested.length > 0) {
+                obj.nested.forEach((x, i) => {
+                    this.sanitize(x, obj, i)
+                })
+            }
+        }        
     }
 })()

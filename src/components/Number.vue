@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- implement default component behavior -->        
-        <div class="" v-if="normal" :class="{flex: root, flex: !root, lmao: !true}">
+        <div class="" v-if="normal" :class="{flex: root, flex: !root, fr: showFraction, lmao: !true}">
             <div class="math--object" @click='showFactor=!showFactor' :hidden='root'>
                 <!-- actual number value -->
                 <div class="object-value object-margin">
@@ -58,6 +58,7 @@ export default {
     data(){
         return {
             showFactor: false,
+            showFraction: false
         }
     },
     methods: {
@@ -77,6 +78,7 @@ export default {
                         break;
                     case '/':
                         console.log('wait for fraction')
+                        this.showFraction = !this.showFraction;
                         break;
                     default:
                         console.log('No operator')
@@ -119,6 +121,7 @@ export default {
         },
         fraction(){
             if(this.root) return 'flex'
+            if(this.showFraction) return 'fr'
             return 'lol'
         }
     },
@@ -161,13 +164,11 @@ export default {
 .lol{
     border: 2px solid red;
 }
-.lmao{
+.fr{
     border: 2px solid blue;
     display: flex;
     flex-direction: column!important;
     // flex-wrap: wrap;
-
-
 }
 </style>
 

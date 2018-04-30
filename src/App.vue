@@ -2,10 +2,11 @@
   <div id="app">
 
     <div v-for="(n, i) in numberStore" :key="i">
-      <!-- <expression v-bind="{numbers: n.nested, stateIndex: i, functions: n.methods()}"/> -->
       <expression v-bind="{numbers: n, stateIndex: i}"/>
     </div>
+
     <control/>
+    
   </div>
 </template>
 

@@ -13,9 +13,9 @@ export function init(){
         if (p.nested[0].value === 1) return Store.reset()
         //the index remains, while each remove updated nest index
         function sanitize(obj, parent, i = false){
-            console.log('run sanitizer')
+            // console.log('run sanitizer')
             if(obj.value === 1){
-                console.log('marking child for removal')
+                // console.log('marking child for removal')
                 obj.setRemove(true);
             }
             else if(obj.nested.length > 0){
@@ -29,7 +29,7 @@ export function init(){
         p.nested[0].clearRemoved().toInt().evaluateSign()
         Store.numbers[0].addExpression(p.nested)
         Store.reset();        
-        console.log('return from enter')
+        // console.log('return from enter')
         // console.groupEnd()
         return
     })
