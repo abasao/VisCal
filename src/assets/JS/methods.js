@@ -1,5 +1,6 @@
 'use strict'
 export default (() => {
+    //start index, array => array of primes
     function prime(i,array){
         if(array.length <= i) return array
         return prime(i + 1, array.filter((x, index) => index === i || x % array[i] !== 0))
