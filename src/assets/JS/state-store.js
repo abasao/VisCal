@@ -6,6 +6,7 @@ const State = {
     Store: {
         numbers:[],
         aN: (new Num()).setRoot('edit'),
+        parentheses: false,
         btn: {
             btn_num: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
             btn_op: ['+', '-', '*', '/'],
