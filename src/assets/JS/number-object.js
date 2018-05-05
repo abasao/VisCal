@@ -1,27 +1,85 @@
 'use strict'
 import mod from ".//methods";
 export class Num {
-    constructor(val = 1, id = false, sign = '+', operator = '*') {
+    constructor(val = 1, id = false, sign = '+', operator = false) {
         this.root = false;
         this.remove = false;
         this.id = id || [];
+        this.viewState = [];
         this.value = val;
         this.sign = sign;
-        this.op = operator;
+        this.op = false; //for parent-child 4*(1+3+4)
+        this.nestOp = operator; //for siblings 4*4*4/3
         this.factor = mod.factorize(val);
         this.nested = [];
         this.parentMethod;
     }
 
+    setProperty(prop, val = false, unset = false){
+        switch (prop) {
+            case 'op':
+                if(!unset){
+                    this.op = val || this.op;
+                }else {
+                    console.log('op is: ' + this.op)
+                    this.op = !this.op ? this.nestOp || val : this.op;
+                    console.log('nestop is: ' + this.nestOp)
+                    this.nestOp = this.nestOp ? false : this.nestOp;
+                }
+                break;
+            case 'nestOp':
+                if (!unset) {
+                    this.nestOp = val || this.nestOp;
+                } else {
+                    //if it's false, set it equal to sibling op or given value
+                    //users will likely press operator before parentheses, not knowing
+                    //operator is automatically added
+                    this.nestOp = !this.nestOp ? this.op || val : this.nestOp;
+                    this.op = this.op ? false: this.op;
+                }            
+                break;
+            case 'sign':
+                if (!unset) {
+                    this.sign = val || this.sign;
+                } else {
+                    this.sign = !this.sign ? val : this.sign;
+                }             
+                this.sign = val || this.sign;
+                break;
+            case 'viewState':
+                if (!this.viewState.includes(val) && !this.root) {
+                    this.viewState.push(val)
+                }
+                break;
+            default:
+                break;
+        }
+        return this
+    }
+
+    setViewState(state = false){
+        if(this.root || !state) return
+        //Do this in component state as computed prop
+        // if (!this.viewState[0]){
+        //     this.viewState.push('nested-'+Math.floor(this.id.length / 2))
+        // } else if (this.viewState[0].match(/nested-[0-9]/) !== null){
+        //     this.viewState[0] = 'nested-' + Math.floor(this.id.length/2)
+        // }
+        if(!this.viewState.includes(state)){
+            this.viewState.push(state)
+        }
+    }
     setRoot(id) {
         this.root = true;
         this.value = false;
         this.factor = false;
         this.remove = false;
         this.op = false;
+        this.nestOp = false;
         this.id.push(id||0);
         return this
     }
+
     //accepts single array with all terms inside, like this.nested
     addExpression(exp, start = false, replace = 0){
         if(typeof exp !== 'object') return
@@ -29,6 +87,17 @@ export class Num {
         this.setId(this.id)
         this.setParentMethod()
         this.setValue()
+    }
+
+    //only for use by addExpression
+    evaluateSign() {
+        this.value = this.sign === '+' ? this.value : -1 * this.value
+        if (this.nested.length > 0) {
+            this.nested.forEach(element => {
+                element.evaluateSign()
+            });
+        }
+        return this
     }
 
     addChild(...param) {
@@ -62,16 +131,7 @@ export class Num {
         }
         return this
     }
-    //only for use by addExpression
-    evaluateSign(){
-        this.value = this.sign === '+' ? this.value : -1*this.value
-        if(this.nested.length > 0){
-            this.nested.forEach(element => {
-                element.evaluateSign()
-            });
-        }
-        return this
-    }
+
     setId(id) {
         if (!id) return
         this.id = typeof id === 'object' ? id : [id];
@@ -81,6 +141,7 @@ export class Num {
             })
         }
     }
+
     setParentMethod(parent = false){
         if(typeof parent === 'function'){
             this.parentMethod = parent;
@@ -95,6 +156,7 @@ export class Num {
     setValue(value = false, f = false){
         this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
         this.factor = mod.factorize(this.value);
+
         if(arguments.length === 0 && this.nested.length > 0){
             this.nested.forEach(x=>x.setValue())
         }
@@ -108,11 +170,13 @@ export class Num {
         n.splice(i,1);
         this.setId(this.id);
     }
+
     parentOperator(f = false){
         if(!f && this.nested && this.nested.length < 1 ) return
         this.nested.forEach(x => x.setValue(false, f.bind(null, this.value)))
         this.parentMethod(this.nested, this.id.pop(), 1)
     }
+
     Commander(command){
         switch (command) {
             case 'multiply':
@@ -132,6 +196,7 @@ export class Num {
                 break;
         }
     }
+
     methods(){
         return {
             add: this.siblingOperator.bind(this, (x,y) => x + y),

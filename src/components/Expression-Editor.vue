@@ -4,7 +4,10 @@
       v-for="(num, index) in nest" :key="index">
 
         <div class="btn-style btn-value">
-            <span class="btn-value"  v-if="showSign(index)">
+            <span class="btn-value" v-if="num.op">
+                {{num.op | operator}} 
+            </span>
+            <span class="btn-value" v-else-if="showSign(index)">
                 {{num.sign | sign}}
             </span>
             <span class="btn-value" v-else-if="showSign(index, num.sign)">
@@ -14,9 +17,10 @@
             </span>     
             {{num | realValue}}
         </div>
-
+        <div class="btn-style flex" v-if="num.nestOp">            
+            {{num.nestOp | operator}} nest
+        </div>
         <div class="btn-style flex" v-if="child(index) !== false">
-            {{num.op | operator}} 
             <parentheses :bool='showParentheses(index)'>
                 <span class="btn-value margin-h" v-for="(n, i) in child(index)" :key="i">
                     <span class="btn-value"  v-if="showSign(i)">
@@ -38,7 +42,7 @@
       </div> -->
 
       <!-- <div class="btn-style flex" v-if="child">
-        {{nest[0].op | operator}} 
+        {{nest[0].nestOp | operator}} 
         <parentheses :bool='showParentheses'>
             <span class="btn-value margin-h" v-for="(n, i) in child" :key="i">
                 <span class="btn-value"  v-if="showSign(i)">
@@ -85,12 +89,17 @@ export default {
             return this.nest[i].nested
         },
         showParentheses(i=0){
+            if(i < this.nest.length-1) return [true,true]
+            if(Store.parentheses) return [true,false]
+            return [true, true]
+            /*
             if(this.child(i) && this.child(i).length > 1){
                 return true
             }else if(this.child(i) && this.child(i)[0].sign === '-'){
                 return true
             }
             return false
+            */
         },         
     },
     computed:{

@@ -29,13 +29,14 @@ export function init(){
         }
 
         sanitize(p,0)
-        p.nested[0].clearRemoved().toInt().evaluateSign()
+        p.clearRemoved().toInt().evaluateSign()
         Store.numbers[0].addExpression(p.nested)
         Store.reset();        
         // console.log('return from enter')
         // console.groupEnd()
         return
     })
+
     EventBus.$on('btnSpec', x => {
         if(x === 'C') return
         let p = Store.aN;
@@ -44,7 +45,7 @@ export function init(){
         console.group('Parentheses group')
         console.log('entering Spec')
         if(!Store.parentheses && p.nested[pLen - 1].nested.length === 0){
-            p.nested[pLen - 1].addChild(1);
+            p.nested[pLen - 1].addChild(1).setProperty('nestOp', '*', true);
             Store.parentheses = !Store.parentheses;
         } else if (Store.parentheses && p.nested[pLen - 1].nested.length > 0){
             if (p.nested[pLen - 1].nested.slice(-1)[0].value === 1){
@@ -56,36 +57,52 @@ export function init(){
         console.groupEnd()
     })
 
+    //for Parentheses
     EventBus.$on('btnNumber', x => {
+        if (!Store.parentheses) return
         let p = Store.aN;
         let nestLen = p.nested.length;
-        console.group('number group')
-        if (p.nested.length === 0) {
-            console.log('add child')
-            p.addChild(x);
-        } else if (!Store.parentheses && p.nested[nestLen-1].nested.length === 0) {
-            console.log('add digit')
-            if (p.nested[nestLen-1].value === 1) {
-                p.nested[nestLen-1].value = '';
-            }
-            p.nested[nestLen-1].value += x;
-            console.log(p.nested[nestLen-1])
-        } else if (Store.parentheses && p.nested[nestLen-1].nested.length > 0) {
-            console.log('the nest')
-            let n = p.nested[nestLen-1].nested;
-            let len = n.length;
-            if (n[len - 1].value === 1) {
-                console.log('has value 1')
-                n[len - 1].value = x;
-                console.log(n)
-            } else if (typeof n[len - 1].value === 'string') {
-                console.log('has string value')
-                n[len - 1].value += x;
-                console.log(n)
-            }
+        console.group('parentheses number group')
+        console.log('the nest')
+        let n = p.nested[nestLen-1].nested;
+        let len = n.length;
+        if (n[len - 1].value === 1) {
+            console.log('has value 1')
+            n[len - 1].value = x;
+            console.log(n)
+        } else if (typeof n[len - 1].value === 'string') {
+            console.log('has string value')
+            n[len - 1].value += x;
+            console.log(n)
         }
         console.groupEnd()
     })
+
+    EventBus.$on('btnNumber', x => {
+        if (Store.parentheses) return
+        let p = Store.aN;
+        let nestLen = p.nested.length;
+        console.group('number group')
+        if (p.nested.length === 0 || p.nested[nestLen - 1].nestOp !== false && 
+            p.nested[nestLen - 1].nested.length === 0) {
+            console.log('add child')
+            p.addChild(x)
+            if(nestLen > 0){
+                p.nested[nestLen].setProperty('op', p.nested[nestLen-1].nestOp);
+                p.nested[nestLen - 1].nestOp = false;
+            }
+            console.log(p.nested[nestLen])
+        } else if (p.nested[nestLen - 1].nested.length === 0) {
+            console.log('add digit')
+            if (p.nested[nestLen - 1].value === 1) {
+                p.nested[nestLen - 1].value = '';
+            }
+            p.nested[nestLen - 1].value += x;
+            console.log(p.nested[nestLen - 1])
+        }
+        console.groupEnd()
+    })
+
     //for ['+', '-']
     EventBus.$on('btnOp', x => {
         let p = Store.aN;
@@ -97,7 +114,7 @@ export function init(){
             p.addChild(1).nested[0].sign = x;
             console.log(p.nested[0])
         }else{
-            if (!Store.parentheses) {
+            if (!Store.parentheses && !p.nested[pLen - 1].nestOp) {
                 if (p.nested[pLen - 1].value === 1) {
                     console.log('changing sibling sign')
                     p.nested[pLen - 1].sign = x;
@@ -122,12 +139,14 @@ export function init(){
     EventBus.$on('btnOp', x => {
         let p = Store.aN;
         let pLen = p.nested.length;
-        if (['+', '-'].includes(x) || pLen === 0) return
+        if (['+', '-'].includes(x) || pLen === 0 || Store.parentheses) return
         console.group('Op group')
+        //later: just check parentheses, otherwise allow deep nesting?
         if (['*', '/'].includes(x) && p.nested[pLen-1].nested.length === 0) {
             console.log('changing operator')
-            p.nested[pLen-1].op = x;
-            console.log(p.nested[pLen-1].op)
+            // p.nested[pLen-1].nestOp = x;
+            p.nested[pLen-1].setProperty('nestOp', x);
+            // console.log(p.nested[pLen-1].nestOp)
         }
         console.groupEnd()
     })

@@ -16,8 +16,8 @@
             </div>
 
             <div class="flex" v-if="showNest">
-                <div @click="doOperation(true, numberProp.op)" :hidden='root'>
-                    {{numberProp.op | operator}}
+                <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
+                    {{numberProp.nestOp | operator}}
                 </div> 
                 <!-- implement parentheses nest -->
                 <parentheses :bool='showParentheses'>
