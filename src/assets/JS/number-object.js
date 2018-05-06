@@ -11,6 +11,8 @@ export class Num {
         this.op = false; //for parent-child 4*(1+3+4)
         this.nestOp = operator; //for siblings 4*4*4/3
         this.factor = mod.factorize(val);
+        //this.group = false; //check is any of the siblings have op = true
+        this.sibling = [];
         this.nested = [];
         this.parentMethod;
     }
@@ -89,11 +91,16 @@ export class Num {
         this.setValue()
     }
 
-    //only for use by addExpression
+    //only for use when adding expression
     evaluateSign() {
         this.value = this.sign === '+' ? this.value : -1 * this.value
         if (this.nested.length > 0) {
             this.nested.forEach(element => {
+                element.evaluateSign()
+            });
+        }
+        if (this.sibling.length > 0) {
+            this.sibling.forEach(element => {
                 element.evaluateSign()
             });
         }
@@ -111,9 +118,37 @@ export class Num {
         return this
     }
 
+    addSibling(...param) {
+        if (!param || this.nested.length > 0) return
+
+        if(this.sibling.length === 0){
+            this.sibling.push(new Num(this.value))
+            this.sign = this.value < 0 ? '-' : '+';
+            this.value = false;
+        }
+
+        param.forEach(x => {
+            x = typeof x === 'object' ? x : [x]
+            this.sibling.push((new Num(...x)))
+        })
+
+        if(this.nestOp || this.op){
+            this.sibling[1].setProperty('op', this.nestOp || this.op || '*')
+            this.nestOp = this.op = false;
+        }
+
+        this.setId(this.id);
+        this.setParentMethod();
+        return this
+    }
+
     clearRemoved(){
-        if(this.nested.length < 1) this
-        this.nested = this.nested.filter(x => x.remove !== true);
+        if(this.nested.length > 0){
+            this.nested = this.nested.filter(x => x.remove !== true);
+        }
+        if(this.sibling.length > 0){
+            this.sibling = this.sibling.filter(x => x.remove !== true);
+        }
         this.setId(this.id);
         return this
     }
@@ -150,7 +185,12 @@ export class Num {
             this.nested.forEach((child) => {
                 child.setParentMethod(this.addExpression.bind(this))
             })
-        }        
+        }
+        if (this.sibling.length > 0) {
+            this.sibling.forEach((element) => {
+                element.setParentMethod(this.addExpression.bind(this))
+            })
+        }
     }
 
     setValue(value = false, f = false){
@@ -160,6 +200,9 @@ export class Num {
         if(arguments.length === 0 && this.nested.length > 0){
             this.nested.forEach(x=>x.setValue())
         }
+        if (arguments.length === 0 && this.sibling.length > 0) {
+            this.sibling.forEach(x => x.setValue())
+        }        
     }
 
     siblingOperator(f = false, i){

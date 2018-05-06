@@ -14,13 +14,13 @@ const State = {
         },
         reset(){
             this.aN.nested = [];
-        }      
+        }
     },
     stateHistory: {},
     mutations: {
         createState(){
         },
-        
+
     },
 
     createState(){

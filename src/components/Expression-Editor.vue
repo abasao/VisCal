@@ -2,8 +2,7 @@
   <div class="math cursor control preview-style flex" v-if="nest.length > 0">
       <div class="flex" 
       v-for="(num, index) in nest" :key="index">
-
-        <div class="btn-style btn-value">
+        <div class="btn-style btn-value" v-if="!sibling(index)">
             <span class="btn-value" v-if="num.op">
                 {{num.op | operator}} 
             </span>
@@ -17,8 +16,8 @@
             </span>     
             {{num | realValue}}
         </div>
-        <div class="btn-style flex" v-if="num.nestOp">            
-            {{num.nestOp | operator}} nest
+        <div class="btn-style btn-value flex" v-if="num.nestOp">            
+            {{num.nestOp | operator}}
         </div>
         <div class="btn-style flex" v-if="child(index) !== false">
             <parentheses :bool='showParentheses(index)'>
@@ -34,6 +33,22 @@
                         {{n | realValue}}
                 </span>
             </parentheses>        
+        </div>
+        <div class="btn-style flex" v-if="sibling(index)">
+                <span class="btn-value margin-h" v-for="(n, i) in sibling(index)" :key="i">
+                <span class="btn-value" v-if="n.op">
+                    {{num.op | operator}} 
+                </span>                    
+                    <span class="btn-value"  v-if="showSign(i)">
+                        {{n.sign | sign}}
+                    </span>
+                    <span class="btn-value" v-else-if="showSign(i, n.sign)">
+                        <span class="negative-sign" >
+                            {{n.sign | sign}}
+                        </span>
+                    </span>
+                        {{n | realValue}}
+                </span>
         </div>
 
       </div>
@@ -87,6 +102,14 @@ export default {
                 return false
             }
             return this.nest[i].nested
+        },
+        sibling(i=0){
+            console.log('siblings:')
+            console.log(this.nest[0].sibling)
+            if(this.nest[i].sibling.length===0){ 
+                return false
+            }
+            return this.nest[i].sibling            
         },
         showParentheses(i=0){
             if(i < this.nest.length-1) return [true,true]
