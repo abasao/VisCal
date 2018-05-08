@@ -8,10 +8,11 @@ export class Num {
         this.viewState = [];
         this.value = val;
         this.sign = sign;
-        this.op = false; //for parent-child 4*(1+3+4)
-        this.nestOp = operator; //for siblings 4*4*4/3
+        this.pow = [1];
+        this.op = false; //for sibling interaction sibling[a] op sibling[b]
+        this.nestOp = operator; //for (sibling) nestOp (nest)
+        this.holder = false; //number is converted to holding object that holds nest and/or sibling
         this.factor = mod.factorize(val);
-        //this.group = false; //check is any of the siblings have op = true
         this.sibling = [];
         this.nested = [];
         this.parentMethod;
@@ -53,12 +54,54 @@ export class Num {
                     this.viewState.push(val)
                 }
                 break;
+            case 'pow':
+                this.pow = [val] || this.pow;
+                break;
+            case 'holder':
+                this.holder = val || this.holder;
+                break;
             default:
                 break;
         }
         return this
     }
 
+    setLast(target = false, ...val){
+        switch (target) {
+            case 'nested':
+                if(this.nested.length > 0){
+                    this.nested[this.nested.length-1].setProperty(...val)
+                }
+                break;
+            case 'sibling':
+                if (this.sibling.length > 0) {
+                    this.sibling[this.sibling.length - 1].setProperty(...val)
+                }
+                break;
+        
+            default:
+                break;
+        }
+    }
+    getLast(target = false){
+        let targetEl = false;
+        switch (target) {
+            case 'nested':
+                if(this.nested.length > 0){
+                    targetEl = this.nested[this.nested.length -1]
+                }
+                break;
+            case 'sibling':
+                if(this.sibling.length > 0){
+                    targetEl = this.sibling[this.sibling.length -1]
+                }
+                break;
+        
+            default:
+                break;
+        }
+        return targetEl
+    }
     setViewState(state = false){
         if(this.root || !state) return
         //Do this in component state as computed prop
@@ -67,10 +110,11 @@ export class Num {
         // } else if (this.viewState[0].match(/nested-[0-9]/) !== null){
         //     this.viewState[0] = 'nested-' + Math.floor(this.id.length/2)
         // }
-        if(!this.viewState.includes(state)){
-            this.viewState.push(state)
-        }
+        // if(!this.viewState.includes(state)){
+        //     this.viewState.push(state)
+        // }
     }
+
     setRoot(id) {
         this.root = true;
         this.value = false;
@@ -78,7 +122,7 @@ export class Num {
         this.remove = false;
         this.op = false;
         this.nestOp = false;
-        this.id.push(id||0);
+        this.id.push(id || 0);
         return this
     }
 
@@ -121,25 +165,26 @@ export class Num {
     addSibling(...param) {
         if (!param || this.nested.length > 0) return
         //moving first number object to sibling level, then adding sibling in param
-        // if(this.sibling.length === 0){
-        //     this.sibling.push(new Num(this.value))
-        //     this.sign = this.value < 0 ? '-' : '+';
-        //     this.value = false;
-        // }
+        if(this.sibling.length === 0){
+            this.value = false;
+            this.holder = true;
+            this.op = this.sign;
+            this.nestOp = false;
+        }
 
         param.forEach(x => {
             x = typeof x === 'object' ? x : [x]
             this.sibling.push((new Num(...x)))
         })
 
-        if(this.nestOp || this.op){
-            this.sibling[1].setProperty('op', this.nestOp || this.op || '*')
-            this.nestOp = this.op = false;
-        }
+        // if(this.nestOp || this.op){
+        //     this.sibling[1].setProperty('op', this.nestOp || this.op || '*')
+        //     this.nestOp = this.op = false;
+        // }
 
         this.setId(this.id);
         this.setParentMethod();
-        return this.sibling[this.sibling.length-1]
+        return this
     }
 
     clearRemoved(){

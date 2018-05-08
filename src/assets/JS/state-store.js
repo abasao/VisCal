@@ -12,6 +12,14 @@ const State = {
             btn_op: ['+', '-', '*', '/'],
             btn_spec: ['(  )', 'C']
         },
+        target: false,
+        setTarget(T){
+            if(this.target.value === 1){
+
+            }else if(this.target.value === false){
+                
+            }
+        },
         reset(){
             this.aN.nested = [];
         }

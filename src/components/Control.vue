@@ -8,7 +8,7 @@
         <div class="control--row flex" v-for="(btnRow, iRow) in btnArray" :key="iRow">
             <div v-for="(btn, iBtn) in btnRow" :key="iBtn">
                 <div class="control--btn margin-h margin-v btn-style flex"
-                @click="btnClick(btn)">
+                @click="btnClick(btn, $event)">
                     <span class="btn-value">
                         {{btn}}
                     </span>
@@ -26,37 +26,41 @@ export default {
     data(){
         return {
             btnArray: [
-                ['×', '÷', '(  )', 'C'],
+                ['×', '÷', '(  )', '^'],
                 ['7', '8', '9', '−'],
                 ['4', '5', '6', '+'],
                 ['1', '2', '3', '0']
             ],
             btn_num: ['0', '1', '2', '3','4', '5', '6','7', '8', '9'],
             btn_op: ['+', '−', '×', '÷'],
-            btn_spec: [ '(  )', 'C']            
+            btn_spec: [ '(  )', '^']            
         }
     },
     methods: {
-        btnClick(btn){
+        btnClick(btn, e){
             if(this.btn_num.includes(btn)){
-                EventBus.$emit('btnNumber', btn);
+                EventBus.$emit('btn-number', btn, e);
             }else if(this.btn_op.includes(btn)){
                 switch (btn) {
                     case '×':
-                        EventBus.$emit('btnOp', '*');
+                        EventBus.$emit('btn-op', '*', e);
                         break;
                     case '÷':
-                        EventBus.$emit('btnOp', '/');
+                        EventBus.$emit('btn-op', '/', e);
                         break;
                     case '−':
-                        EventBus.$emit('btnOp', '-');
+                        EventBus.$emit('btn-op', '-', e);
                         break;
                     default:
-                        EventBus.$emit('btnOp', '+');
+                        EventBus.$emit('btn-op', '+', e);
                         break;
                 }
             }else if(this.btn_spec.includes(btn)){
-                EventBus.$emit('btnSpec', btn)
+                if(btn === '^'){
+                    EventBus.$emit('btn-pow', btn, e)
+                }else{
+                    EventBus.$emit('btn-parentheses', e)
+                }
             }                
         },
 
