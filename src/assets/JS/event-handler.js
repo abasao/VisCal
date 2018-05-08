@@ -58,7 +58,7 @@ export function init(){
         }
         console.log(Store.parentheses)
         console.groupEnd()
-    })    
+    })
 
     //for Parentheses
     EventBus.$on('btnNumber', x => {
@@ -88,27 +88,47 @@ export function init(){
         let p = Store.aN;
         let nestLen = p.nested.length;
         let lastNum = nestLen > 0 ? p.nested[nestLen - 1] : false;
+        if (lastNum && lastNum.sibling.length > 0) return
         console.group('number group')
         //correcting for false nestOp
         if (nestLen === 0) {
             console.log('add child')
             p.addChild(x)
-            // if (nestLen > 0) {
-            //     p.nested[nestLen].setProperty('op', p.nested[nestLen - 1].nestOp);
-            //     p.nested[nestLen - 1].nestOp = false;
-            // }
             console.log(lastNum)
-        } else if (lastNum.nestOp !== false &&
-                    lastNum.nested.length === 0){
-            console.log('add sibling')
-            lastNum.addSibling(x)
-            console.log(lastNum)         
-        } else if (lastNum.nested.length === 0) {
+        } else if (lastNum.nested.length === 0 && lastNum.nestOp === false){
             console.log('add digit')
             if (lastNum.value === 1) {
                 lastNum.value = '';
             }
             lastNum.value += x;
+            console.log(lastNum)
+        }
+        console.groupEnd()
+    })
+
+    //for siblings lastNum.sibling.length === 0
+    EventBus.$on('btnNumber', x => {
+        let p = Store.aN;
+        let nestLen = p.nested.length;
+        let lastNum = nestLen > 0 ? p.nested[nestLen - 1] : false;
+
+        if (Store.parentheses || !lastNum || lastNum.nested.length !== 0) return
+        console.group('sibling group')
+        let sib = lastNum ? lastNum.sibling : []
+        let lastSib = sib[sib.length - 1]
+        if (lastNum.nestOp === false && sib.length > 0){
+            console.log('add digit to sibling')
+            if (lastSib.value === 1) {
+                lastSib.value = '';
+            }
+            lastSib.value += x;
+            console.log(lastSib.value)
+        }else if(lastNum.nestOp !== false && sib.length === 0){
+            //if parentheses doesn't claim nestOp, then add lastNum and x to sibling
+            console.log('add sibling')
+            lastNum.addSibling(lastNum.value, x).op = lastNum.nestOp;
+            lastNum.value = false;
+            lastNum. nestOp = false;
             console.log(lastNum)
         }
         console.groupEnd()
@@ -123,10 +143,10 @@ export function init(){
         console.group('parentheses + or - group')
         let len = p.nested[pLen - 1].nested.length;
         if (p.nested[pLen - 1].nested[len - 1].value === 1) {
-            console.log('change child sign to: ' + x)
+            console.log('change nest child sign to: ' + x)
             p.nested[pLen - 1].nested[len - 1].sign = x;
         } else if (typeof p.nested[pLen - 1].nested[len - 1].value === 'string') {
-            console.log('add extra child in nest')
+            console.log('add extra nest child')
             p.nested[pLen - 1].addChild([1, false, x])
         }
         console.groupEnd()
@@ -139,16 +159,16 @@ export function init(){
         let pLen = p.nested.length;
         console.group('+ or - group')
         if (pLen === 0) {
-            console.log('first sibling sign')
+            console.log('first child sign')
             p.addChild(1).nested[0].sign = x;
             console.log(p.nested[0])
         } else {
             if (!p.nested[pLen - 1].nestOp) {
                 if (p.nested[pLen - 1].value === 1) {
-                    console.log('changing sibling sign')
+                    console.log('changing child sign')
                     p.nested[pLen - 1].sign = x;
                 } else if (typeof p.nested[pLen - 1].value === 'string') {
-                    console.log('add sibling')
+                    console.log('add child')
                     p.addChild([1, false, x]);
                 }
             }
@@ -160,14 +180,22 @@ export function init(){
     EventBus.$on('btnOp', x => {
         let p = Store.aN;
         let pLen = p.nested.length;
-        if (!['*', '/'].includes(x) || pLen === 0 || Store.parentheses) return
+        if (!['*', '/'].includes(x) || pLen === 0 || Store.parentheses || p.nested[pLen - 1].value === 1) return
         console.group('Op group')
+        let lastNum = p.nested[pLen - 1];
         //later: just check parentheses, otherwise allow deep nesting?
-        if (p.nested[pLen - 1].nested.length === 0) {
-            console.log('changing operator')
-            // p.nested[pLen-1].nestOp = x;
-            p.nested[pLen - 1].setProperty('nestOp', x);
-            // console.log(p.nested[pLen-1].nestOp)
+        //retarded, you have to have one for nest and one for siblings
+        //wrong:cant have nest without parentheses anymore, only sibling; lastNum can come after closing parentheses
+        if (lastNum.nested.length === 0) { 
+            if (lastNum.value === false){
+                console.log('changing sibling operator')
+                lastNum.addSibling(1).op = x;
+            }else{
+                console.log('changing operator')
+                // p.nested[pLen-1].nestOp = x;
+                lastNum.setProperty('nestOp', x);
+                // console.log(p.nested[pLen-1].nestOp)
+            }
         }
         console.groupEnd()
     })    

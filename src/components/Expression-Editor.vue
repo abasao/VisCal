@@ -104,8 +104,6 @@ export default {
             return this.nest[i].nested
         },
         sibling(i=0){
-            console.log('siblings:')
-            console.log(this.nest[0].sibling)
             if(this.nest[i].sibling.length===0){ 
                 return false
             }

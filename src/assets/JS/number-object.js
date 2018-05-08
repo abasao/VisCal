@@ -120,12 +120,12 @@ export class Num {
 
     addSibling(...param) {
         if (!param || this.nested.length > 0) return
-
-        if(this.sibling.length === 0){
-            this.sibling.push(new Num(this.value))
-            this.sign = this.value < 0 ? '-' : '+';
-            this.value = false;
-        }
+        //moving first number object to sibling level, then adding sibling in param
+        // if(this.sibling.length === 0){
+        //     this.sibling.push(new Num(this.value))
+        //     this.sign = this.value < 0 ? '-' : '+';
+        //     this.value = false;
+        // }
 
         param.forEach(x => {
             x = typeof x === 'object' ? x : [x]
@@ -139,7 +139,7 @@ export class Num {
 
         this.setId(this.id);
         this.setParentMethod();
-        return this
+        return this.sibling[this.sibling.length-1]
     }
 
     clearRemoved(){
