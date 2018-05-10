@@ -247,6 +247,9 @@ export function init(){
             if (lastNum.value === 1) {
                 console.log('change child sign to: ' + x)
                 lastNum.sign = x;
+            } else if(typeof lastNum.value === 'string'){
+                console.log('add child')
+                p.addChild([1, false, x])
             } else if(lastNum.holder){
                 if (lastNum.getLast('sibling').value === 1) {
                     //should maybe allow 'C' to undo * or / operator

@@ -52,26 +52,6 @@
         </div>
 
       </div>
-      <!-- <div class="btn-style btn-value" v-if="nest.length > 0">
-          {{nest[0].sign | minusSign}} {{nest[0] | realValue}}
-      </div> -->
-
-      <!-- <div class="btn-style flex" v-if="child">
-        {{nest[0].nestOp | operator}} 
-        <parentheses :bool='showParentheses'>
-            <span class="btn-value margin-h" v-for="(n, i) in child" :key="i">
-                <span class="btn-value"  v-if="showSign(i)">
-                    {{n.sign | sign}}
-                </span>
-                <span class="btn-value" v-else-if="showSign(i, n.sign)">
-                    <span class="negative-sign" >
-                        {{n.sign | sign}}
-                    </span>
-                </span>
-                    {{n | realValue}}
-            </span>
-        </parentheses>        
-      </div> -->
   </div>  
 </template>
 
