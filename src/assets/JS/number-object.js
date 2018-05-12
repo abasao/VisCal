@@ -203,11 +203,17 @@ export class Num {
     }
 
     toInt(){
-        this.value = parseInt(this.value, 10);
-        if(this.nested.length > 0 ){
-            this.nested.forEach(element => {
-                element.toInt()
+        if(this.holder){
+            if(this.nested.length > 0 ){
+                this.nested.forEach(child => {
+                    child.toInt()
+                });
+            }
+            this.sibling.forEach(sib => {
+                sib.toInt()
             });
+        }else{
+            this.value = parseInt(this.value, 10);
         }
         return this
     }
@@ -215,9 +221,14 @@ export class Num {
     setId(id) {
         if (!id) return
         this.id = typeof id === 'object' ? id : [id];
-        if (this.nested.length > 0) {
-            this.nested.forEach((child, i) => {
-                child.setId([...id, 'nested', i])
+        if(this.holder){
+            if (this.nested.length > 0) {
+                this.nested.forEach((child, i) => {
+                    child.setId([...id, 'nested', i])
+                })
+            }
+            this.sibling.forEach((sib, i) => {
+                sib.setId([...id, 'sibling', i])
             })
         }
     }
@@ -226,28 +237,30 @@ export class Num {
         if(typeof parent === 'function'){
             this.parentMethod = parent;
         }
-        if (this.nested.length > 0) {
-            this.nested.forEach((child) => {
-                child.setParentMethod(this.addExpression.bind(this))
+        if(this.holder){
+            if (this.nested.length > 0) {
+                this.nested.forEach(child => {
+                    child.setParentMethod(this.addExpression.bind(this))
+                })
+            }
+            this.sibling.forEach(sib => {
+                sib.setParentMethod(this.addExpression.bind(this))
             })
-        }
-        if (this.sibling.length > 0) {
-            this.sibling.forEach((element) => {
-                element.setParentMethod(this.addExpression.bind(this))
-            })
+
         }
     }
 
     setValue(value = false, f = false){
-        this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
-        this.factor = mod.factorize(this.value);
-
-        if(arguments.length === 0 && this.nested.length > 0){
-            this.nested.forEach(x=>x.setValue())
-        }
-        if (arguments.length === 0 && this.sibling.length > 0) {
+        if(this.holder){
+            if(arguments.length === 0 && this.nested.length > 0){
+                this.nested.forEach(x=>x.setValue())
+            }
             this.sibling.forEach(x => x.setValue())
-        }        
+        }else{
+            this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
+            this.factor = mod.factorize(this.value);
+        }
+
     }
 
     siblingOperator(f = false, i){

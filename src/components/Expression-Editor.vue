@@ -1,7 +1,62 @@
 <template>
-  <div class="math cursor control preview-style flex" v-if="nest.length > 0">
-      <div class="flex" 
-      v-for="(num, index) in nest" :key="index">
+    <div class="math cursor control preview-style flex" v-if="nest.length > 0">
+        <div class="flex" 
+            v-for="(num, index) in nest" :key="index">
+            <!-- Not Holder -->
+            <div class="btn-style" v-if="!holder(index)">
+                <span class="btn-value" v-if="showSign(index)">
+                    {{num.sign | sign}}
+                </span>
+                <span class="btn-value" v-else-if="showSign(index, num.sign)">
+                    <span class="negative-sign" >
+                        {{num.sign | sign}}
+                    </span>
+                </span>     
+                {{num | realValue}}
+            </div>
+            <!-- Holder with no nest -->
+            <div class="flex" v-else-if="holder(index) && !child(index)">
+                <span class="btn-value" v-if="showSign(index)">
+                    {{num.sign | sign}}
+                </span>
+                <span class="btn-value" v-else-if="showSign(index, num.sign)">
+                    <span class="negative-sign" >
+                        {{num.sign | sign}}
+                    </span>
+                </span>
+                <div class="btn-style btn-value" v-for="(sib, sindex) in num.sibling" :key="sindex">
+                    <span class="btn-value" v-if="sib.op">
+                        {{sib.op | operator}} 
+                    </span>
+                    {{sib | realValue}}
+                </div>
+            </div>
+            <!-- Fractions -->
+            <div class="fraction" v-else>
+                <div class="numerator flex">
+                    <div class="btn-style" v-for="(nume, nindex) in num.sibling" :key="nindex">
+                        <span class="btn-value" v-if="nume.op">
+                            {{nume.op | operator}} 
+                        </span>
+                        {{nume | realValue}}
+                    </div>
+                </div>
+                <div class="denominator flex">
+                    <div class="btn-style" v-for="(denom, dindex) in num.nested" :key="dindex">
+                        <span class="btn-value" v-if="showSign(dindex)">
+                            {{denom.sign | sign}}
+                        </span>
+                        <span class="btn-value" v-else-if="showSign(dindex, denom.sign)">
+                            <span class="negative-sign" >
+                                {{denom.sign | sign}}
+                            </span>
+                        </span>
+                        {{denom | realValue}}
+                    </div>
+                </div>
+            </div>
+
+        <!-- 
         <div class="btn-style btn-value" v-if="!sibling(index)">
             <span class="btn-value" v-if="num.op">
                 {{num.op | operator}} 
@@ -49,10 +104,10 @@
                     </span>
                         {{n | realValue}}
                 </span>
-        </div>
+        </div> -->
 
-      </div>
-  </div>  
+        </div>
+    </div>  
 </template>
 
 <script>
@@ -83,6 +138,12 @@ export default {
             }
             return this.nest[i].nested
         },
+        holder(i=0){
+            if(this.nest[i].holder){ 
+                return this.nest[i]
+            }
+            return false           
+        },
         sibling(i=0){
             if(this.nest[i].sibling.length===0){ 
                 return false
@@ -93,36 +154,12 @@ export default {
             if(i < this.nest.length-1) return [true,true]
             if(Store.parentheses) return [true,false]
             return [true, true]
-            /*
-            if(this.child(i) && this.child(i).length > 1){
-                return true
-            }else if(this.child(i) && this.child(i)[0].sign === '-'){
-                return true
-            }
-            return false
-            */
         },         
     },
     computed:{
         nest(){
             return this.store.aN.nested
-        },
-        // child(i=0){
-        //     if(this.nest.length === 0){ 
-        //         return false
-        //     }else if(this.nest[i].nested.length===0){ 
-        //         return false
-        //     }
-        //     return this.nest[i].nested
-        // },
-        // showParentheses(i=0){
-        //     if(this.child(i) && this.child(i).length > 1){
-        //         return true
-        //     }else if(this.child(i) && this.child(i)[0].sign === '-'){
-        //         return true
-        //     }
-        //     return false
-        // },        
+        },      
     },
     filters: {
         realValue(n){
@@ -169,5 +206,11 @@ export default {
 </script>
 
 <style>
-
+.fraction{
+    display: flex;
+    flex-direction: column;
+}
+.numerator{
+    border-bottom: 2px solid black;
+}
 </style>

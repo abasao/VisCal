@@ -1,8 +1,9 @@
 <template>
     <div>
         <!-- implement default component behavior -->        
-        <div class="" v-if="normal" :class="{flex: root, flex: !root, fr: showFraction, lmao: !true}">
-            <div class="math--object" @click='showFactor=!showFactor' :hidden='root'>
+        <!-- <div class="" v-if="normal" :class="{flex: root, flex: !root, fr: showFraction, lmao: !true}"> -->
+            <!-- Number value -->
+            <div class="math--object" @click='showFactor=!showFactor' :hidden='hideNumber'>
                 <!-- actual number value -->
                 <div class="object-value object-margin">
                     {{numberProp.value | absolute}}
@@ -14,11 +15,28 @@
                     </div>
                 </div>
             </div>
-
-            <div class="flex" v-if="showNest">
+            <!-- Sibling -->
+            <div class="flex" v-if="holder && !showNest">
+                <!-- <div class="flex" v-if="numberProp.op">
+                    {{numberProp.op | operator}}
+                </div> -->
+                <div class="flex " v-for="(sib, index) in numberProp.sibling" :key="index">
+                    <div class="object-value " @click='doOperation(sib.id, "###")' v-if="sib.op">
+                        {{sib.op | operator}}
+                    </div>
+                    <div v-else-if="showSign(index, sib.value)">
+                        <span class="negative-sign" >
+                            {{sib.value | sign}}
+                        </span>
+                    </div>
+                    <number v-bind="{numberProp: sib, functions: sib.methods(), root: false}"/>
+                </div>
+            </div>
+            <!-- fraction -->
+            <div class="flex" v-else-if="showNest">
                 <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
                     {{numberProp.nestOp | operator}}
-                </div> 
+                </div>
                 <!-- implement parentheses nest -->
                 <parentheses :bool='showParentheses'>
                     <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
@@ -34,13 +52,14 @@
                     </div>
                 </parentheses>                 
             </div>
-        </div>
+
+        <!-- </div> -->
         <!-- implement fraction component behavior -->
-        <div v-else-if="!normal">
+        <!-- <div v-else-if="!normal">
             <span>
                 //
             </span>
-        </div>
+        </div> -->
         <!-- exponents, algebriac, other implementations ... -->
     </div>    
 </template>
@@ -99,7 +118,7 @@ export default {
                 return i!==0
             }
             return i === 0 && value[0] < 0
-        },
+        },  
     },
     computed: {
         showParentheses(){
@@ -112,9 +131,19 @@ export default {
 
             return false
         },
+        holder(){
+            if(this.numberProp.holder){ 
+                return true
+            }
+            return false           
+        },         
         showNest(){
             if(this.numberProp.nested.length < 1) return false
             return this.numberProp.nested.length > 0
+        },
+        hideNumber(){
+            if(this.root || this.numberProp.holder) return true
+            return false
         },
         normal(){
             return true

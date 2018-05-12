@@ -16,23 +16,29 @@ export function init(){
 
         if (p.nested[0].value === 1) return Store.reset()
         //the index remains, while each remove updated nest index
-        function sanitize(obj, parent, i = false){
+        function sanitize(obj, parent){
             // console.log('run sanitizer')
             if(obj.value === 1){
                 // console.log('marking child for removal')
                 obj.setRemove(true);
             }
-            else if(obj.nested.length > 0){
-                obj.nested.forEach((x, i)=>{
-                    sanitize(x, obj, i)
+            else if(obj.holder === true){
+                if(obj.nested.length > 0){
+                    obj.nested.forEach( x =>{
+                        sanitize(x, obj)
+                    })
+                }
+                obj.sibling.forEach(x =>{
+                    sanitize(x, obj)
                 })
-            }   
+
+            }
         }
 
         sanitize(p,0)
         p.clearRemoved().toInt().evaluateSign()
         Store.numbers[0].addExpression(p.nested)
-        Store.reset();        
+        Store.reset();
         // console.log('return from enter')
         // console.groupEnd()
         return
@@ -143,7 +149,15 @@ export function init(){
                 lastNum.getLast('sibling').value += x;
             }
         }else if(lastNum.holder && lastNum.sibling.length < 1){
-            //for nest
+            //for nest only
+            if (lastNum.getLast('nested').value === 1) {
+                console.log('changing nested value from 1 to: ' + x)
+                lastNum.getLast('nested').value = x;
+            } else if (typeof lastNum.getLast('nested').value === 'string') {
+                console.log('adding: ' + x + ' to nested value')
+                lastNum.getLast('nested').value += x;
+            }
+        } else if (lastNum.holder && lastNum.sibling.length > 0){
             if (lastNum.getLast('nested').value === 1) {
                 console.log('changing nested value from 1 to: ' + x)
                 lastNum.getLast('nested').value = x;
