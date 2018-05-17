@@ -127,6 +127,7 @@ export function init(){
             }
             Store.parentheses = false;
         }
+        console.log(Store.aN.nested)
         console.groupEnd()
     })
 

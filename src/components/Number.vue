@@ -2,8 +2,9 @@
     <div>
         <!-- implement default component behavior -->        
         <!-- <div class="" v-if="normal" :class="{flex: root, flex: !root, fr: showFraction, lmao: !true}"> -->
+
             <!-- Number value -->
-            <div class="math--object" @click='showFactor=!showFactor' :hidden='hideNumber'>
+            <div class="math--object" @click='showFactor=!showFactor' v-if="!holder && !root">
                 <!-- actual number value -->
                 <div class="object-value object-margin">
                     {{numberProp.value | absolute}}
@@ -61,7 +62,7 @@
             </span>
         </div> -->
         <!-- exponents, algebriac, other implementations ... -->
-    </div>    
+    </div>
 </template>
 
 <script>
@@ -77,7 +78,6 @@ export default {
     data(){
         return {
             showFactor: false,
-            showFraction: false
         }
     },
     methods: {
@@ -97,7 +97,6 @@ export default {
                         break;
                     case '/':
                         console.log('wait for fraction')
-                        this.showFraction = !this.showFraction;
                         break;
                     default:
                         console.log('No operator')

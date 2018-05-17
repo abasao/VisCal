@@ -14,8 +14,8 @@
                 </span>     
                 {{num | realValue}}
             </div>
-            <!-- Holder with no nest -->
-            <div class="flex" v-else-if="holder(index) && !child(index)">
+            <!-- Holder but not fraction -->
+            <div  class="btn-style flex" v-else-if="!fraction(index)">
                 <span class="btn-value" v-if="showSign(index)">
                     {{num.sign | sign}}
                 </span>
@@ -24,14 +24,34 @@
                         {{num.sign | sign}}
                     </span>
                 </span>
-                <div class="btn-style btn-value" v-for="(sib, sindex) in num.sibling" :key="sindex">
-                    <span class="btn-value" v-if="sib.op">
-                        {{sib.op | operator}} 
+                <parentheses :bool='siblingParentheses(index)'>
+                    <div class="btn-style btn-value" v-for="(sib, sindex) in num.sibling" :key="sindex">
+                        <span class="btn-value" v-if="sib.op">
+                            {{sib.op | operator}} 
+                        </span>
+                        {{sib | realValue}}
+                    </div>
+                </parentheses>
+                <div  class="flex" v-if="child(index)">
+                    <span class="btn-value">
+                        {{num.nestOp | operator}} 
                     </span>
-                    {{sib | realValue}}
+                    <parentheses :bool='true'>
+                        <span class="btn-value margin-h" v-for="(n, i) in num.nested" :key="i">
+                            <span class="btn-value"  v-if="showSign(i)">
+                                {{n.sign | sign}}
+                            </span>
+                            <span class="btn-value" v-else-if="showSign(i, n.sign)">
+                                <span class="negative-sign" >
+                                    {{n.sign | sign}}
+                                </span>
+                            </span>
+                                {{n | realValue}}
+                        </span>
+                    </parentheses>
                 </div>
+
             </div>
-            <!-- Fractions -->
             <div class="fraction" v-else>
                 <div class="numerator flex">
                     <div class="btn-style" v-for="(nume, nindex) in num.sibling" :key="nindex">
@@ -55,56 +75,6 @@
                     </div>
                 </div>
             </div>
-
-        <!-- 
-        <div class="btn-style btn-value" v-if="!sibling(index)">
-            <span class="btn-value" v-if="num.op">
-                {{num.op | operator}} 
-            </span>
-            <span class="btn-value" v-else-if="showSign(index)">
-                {{num.sign | sign}}
-            </span>
-            <span class="btn-value" v-else-if="showSign(index, num.sign)">
-                <span class="negative-sign" >
-                    {{num.sign | sign}}
-                </span>
-            </span>     
-            {{num | realValue}}
-        </div>
-        <div class="btn-style btn-value flex" v-if="num.nestOp">            
-            {{num.nestOp | operator}}
-        </div>
-        <div class="btn-style flex" v-if="child(index) !== false">
-            <parentheses :bool='showParentheses(index)'>
-                <span class="btn-value margin-h" v-for="(n, i) in child(index)" :key="i">
-                    <span class="btn-value"  v-if="showSign(i)">
-                        {{n.sign | sign}}
-                    </span>
-                    <span class="btn-value" v-else-if="showSign(i, n.sign)">
-                        <span class="negative-sign" >
-                            {{n.sign | sign}}
-                        </span>
-                    </span>
-                        {{n | realValue}}
-                </span>
-            </parentheses>        
-        </div>
-        <div class="btn-style flex" v-if="sibling(index)">
-                <span class="btn-value margin-h" v-for="(n, i) in sibling(index)" :key="i">
-                <span class="btn-value" v-if="n.op">
-                    {{num.op | operator}} 
-                </span>                    
-                    <span class="btn-value"  v-if="showSign(i)">
-                        {{n.sign | sign}}
-                    </span>
-                    <span class="btn-value" v-else-if="showSign(i, n.sign)">
-                        <span class="negative-sign" >
-                            {{n.sign | sign}}
-                        </span>
-                    </span>
-                        {{n | realValue}}
-                </span>
-        </div> -->
 
         </div>
     </div>  
@@ -150,11 +120,24 @@ export default {
             }
             return this.nest[i].sibling            
         },
+        fraction(i=0){
+            if(this.nest[i].nestOp && this.nest[i].nestOp === '/'){ 
+                return true
+            }
+            return false  
+        },
         showParentheses(i=0){
             if(i < this.nest.length-1) return [true,true]
             if(Store.parentheses) return [true,false]
             return [true, true]
-        },         
+        },
+        siblingParentheses(i=0){
+            if(this.sibling(i).some(x => ['+','-'].includes(x.op))){
+                if(Store.parentheses && !this.child(i)) return [true,false]
+                return [true, true]
+            }
+            return [false, false]
+        }         
     },
     computed:{
         nest(){
