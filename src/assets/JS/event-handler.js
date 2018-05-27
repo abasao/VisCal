@@ -2,10 +2,119 @@
 
 import { EventBus } from "./event-bus";
 import {Store} from "./state-store";
-import { Num } from "./number-object"
+import { Num, NumObj } from "./number-object"
 import mod from "./methods"
 
-export function init(){
+function addNumber(n = 'notSet'){
+    let S = getState()
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = S.last.lastNum
+    if (n === 'notSet' || Store.target) return
+    if(S.empty){
+        p.push(new NumObj(n))   
+    }else if(!S.last.isParentheses){
+        console.log(n)
+        lastNum.addValue(n)
+        console.log(lastNum)
+    }else if(lastNum.parentheses){
+        lastNum.getLast().addValue(n)
+    }
+    console.log(lastNum)
+}
+
+function getState(target = false){
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = len > 0 ? p[len - 1] : false
+    lastNum = target || lastNum
+    return {
+        empty: !!target || len < 1,
+        last: {
+            hasValue: lastNum.value !== ('notSet' && false),
+            isParentheses: lastNum.parentheses,
+            hasNest: lastNum && lastNum.getLast() ? true : false,
+            lastNum: lastNum,
+            isFraction: lastNum && lastNum.op === '/' ? true : false
+        },
+    }
+}
+
+function addOperator(o = 'notSet'){
+    let S = getState()
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = S.last.lastNum
+    if (o === 'notSet' || Store.target) return
+    if(S.empty){
+        p.push(new NumObj('notSet', o))
+    }else if(!S.last.isParentheses){
+        if (!S.last.hasValue){
+            lastNum.changeOp(o)
+        }else{
+            p.push(new NumObj('notSet', o))
+        }
+    }else if(S.last.isParentheses){
+        let lastNest = lastNum.getLast()
+        if(!S.last.hasValue){
+            if(S.last.hasNest){
+                if(lastNest.value === 'notSet'){
+                    lastNest.changeOp(o)
+                }else{
+                    p.push(new NumObj('notSet', o))
+                }
+            }
+        }
+    }
+    console.log(p)
+}
+
+function Operator(o = 'notSet') {
+    let S = setState()
+    if (o === 'notSet' || Store.target) return
+
+}
+
+export function init() {
+    EventBus.$on('enter', x => {
+        console.log('enter group')
+        console.log(NumObj)
+    })
+    //Parentheses start group
+    EventBus.$on('btn-parentheses', e => {
+        console.log('parentheses group')
+    })
+    EventBus.$on('btn-number', x => {
+        console.log('number group')
+        addNumber(x)
+    })
+
+    //for ['*', '/']
+    EventBus.$on('btn-div', x => {
+        let S = getState();
+        if (x !== '/' || S.empty || S.last.isFraction) return
+        console.log('/ group')
+        Operator(x)
+    })
+    EventBus.$on('btn-mul', x => {
+        let S = getState();
+        if (x !== '*' || S.empty || (S.last.isFraction && !S.last.isParentheses) ) return
+        console.log('* group')
+        Operator(x)
+    })
+
+    //for ['+', '-']
+    EventBus.$on('btn-add', x => {
+        let S = getState();
+        if (!['+', '-'].includes(x)) return
+        // if (x === '+' && S.empty) return
+        console.log('+- group')
+        addOperator(x)
+    })
+    
+}
+
+export function initPaused(){
     EventBus.$on('enter', x => {
         // console.group('enter group')
         let p = Store.aN

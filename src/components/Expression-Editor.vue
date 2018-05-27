@@ -1,5 +1,11 @@
 <template>
-    <div class="math cursor control preview-style flex" v-if="nest.length > 0">
+<div>
+    <div class="math cursor control preview-style flex">
+        <div v-for="(n, i) in numberArray" :key="i">
+            {{n.value}}
+        </div>
+    </div>
+    <div class="math cursor control preview-style flex" v-if="false && nest.length > 0">
         <div class="flex" 
             v-for="(num, index) in nest" :key="index">
             <!-- Not Holder -->
@@ -75,9 +81,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
-    </div>  
+    </div>
+</div>    
 </template>
 
 <script>
@@ -142,7 +148,10 @@ export default {
     computed:{
         nest(){
             return this.store.aN.nested
-        },      
+        },
+        numberArray(){
+            return this.store.numArray
+        }
     },
     filters: {
         realValue(n){

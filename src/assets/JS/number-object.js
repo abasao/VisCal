@@ -305,3 +305,67 @@ export class Num {
         }
     }
 }
+
+export class NumObj { 
+    constructor (val = 'notSet', op = false, par = false){
+        this.value = val === 'notSet' ? false : val*1,
+        this.op = op,
+        this.parentheses = par;
+        this.nested = []
+    }
+    addValue(v = 'notSet'){
+        console.group('addValue group')
+        if(v === 'notSet') return
+        if(v === false){
+            this.value = false
+        }else if(this.value === ('notSet' && false)){
+            console.log('notSet or false')
+            this.value = v*1
+        }else{
+            console.log('real value')
+            this.value = this.value + '' + v
+            this.value *= 1
+        }
+        console.groupEnd()
+        return this
+    }
+    getLast(){
+        if(this.nested.length > 0){
+            return this.nested.slice(-1)[0]
+        }
+        return false
+    }
+    changeSign(s = false){
+        if(!s) return
+        switch (s) {
+            case '+':
+                this.value *= this.value < 0 ? -1 : 1
+                break;
+            case '-':
+                this.value *= this.value < 0 ? 1 : -1
+                break;
+            default:
+                break;
+        }
+    }
+    changeOp(o = 'notSet'){
+        if (o === 'notSet') return
+        switch (o) {
+            case '*':
+                this.op = o;
+                break;
+            case '/':
+                this.op = o;
+                break;
+            case '-':
+                this.op = o;
+                break;
+            case '+':
+                this.op = o;
+                break;
+            default:
+                break;
+        }
+        return this
+    }
+}

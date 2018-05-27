@@ -1,18 +1,51 @@
 <template>
     <div class="control flex-col control-style btn-style cursor">
         <div class="control--row flex">
-            <div class="margin-h btn-value btn-top btn-style">←</div>
+            <!-- ←  → -->
+            <div class="margin-h btn-value btn-top btn-style cancel">X</div>
             <div class="margin-h btn-value btn-top btn-style" @click='enterEvent'>Enter</div>
-            <div class="margin-h btn-value btn-top btn-style">→</div>
+            <div class="margin-h btn-value btn-top btn-style accept">O</div>
         </div>
-        <div class="control--row flex" v-for="(btnRow, iRow) in btnArray" :key="iRow">
-            <div v-for="(btn, iBtn) in btnRow" :key="iBtn">
-                <div class="control--btn margin-h margin-v btn-style flex"
-                @click="btnClick(btn, $event)">
-                    <span class="btn-value">
-                        {{btn}}
-                    </span>
-                </div>
+        <div class="control--row flex-col">
+            <div class="flex">
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('×', $event)">
+                    <span class="btn-value">×</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('÷', $event)">
+                    <span class="btn-value">÷</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('(  )', $event)">
+                    <span class="btn-value">(  )</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('^', $event)">
+                    <span class="btn-value">^</span></div>
+            </div>
+            <div class="flex">
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('7', $event)">
+                    <span class="btn-value">7</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('8', $event)">
+                    <span class="btn-value">8</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('9', $event)">
+                    <span class="btn-value">9</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('−', $event)">
+                    <span class="btn-value">−</span></div>
+            </div>
+            <div class="flex">
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('4', $event)">
+                    <span class="btn-value">4</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('5', $event)">
+                    <span class="btn-value">5</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('6', $event)">
+                    <span class="btn-value">6</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('+', $event)">
+                    <span class="btn-value">+</span></div>
+            </div>
+            <div class="flex">
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('1', $event)">
+                    <span class="btn-value">1</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('2', $event)">
+                    <span class="btn-value">2</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('3', $event)">
+                    <span class="btn-value">3</span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('0', $event)">
+                    <span class="btn-value">0</span></div>
             </div>
         </div>
     </div>
@@ -43,16 +76,16 @@ export default {
             }else if(this.btn_op.includes(btn)){
                 switch (btn) {
                     case '×':
-                        EventBus.$emit('btn-op', '*', e);
+                        EventBus.$emit('btn-mul', '*', e);
                         break;
                     case '÷':
-                        EventBus.$emit('btn-op', '/', e);
+                        EventBus.$emit('btn-div', '/', e);
                         break;
                     case '−':
-                        EventBus.$emit('btn-op', '-', e);
+                        EventBus.$emit('btn-add', '-', e);
                         break;
                     default:
-                        EventBus.$emit('btn-op', '+', e);
+                        EventBus.$emit('btn-add', '+', e);
                         break;
                 }
             }else if(this.btn_spec.includes(btn)){

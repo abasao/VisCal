@@ -88,12 +88,18 @@ body{
         }
         .btn-top{
             flex-basis: 15%;
-            background-color: firebrick;
+            background-color: rgb(55, 55, 70);
             color: white;
             text-align: center;
         }
         .preview-style {
             background-color: rgba(30, 143, 255, 0.555);
+        }
+        .cancel{
+            background-color: hsl(0, 100%, 50%);
+        }
+        .accept{
+            background-color: hsl(120, 100%, 40%);
         }
     }
 }
