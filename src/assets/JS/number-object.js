@@ -318,7 +318,7 @@ export class NumObj {
         if(v === 'notSet') return
         if(v === false){
             this.value = false
-        }else if(this.value === ('notSet' && false)){
+        }else if(this.value === 'notSet' || this.value === false){
             console.log('notSet or false')
             this.value = v*1
         }else{

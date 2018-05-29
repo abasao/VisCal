@@ -2,9 +2,9 @@
     <div class="control flex-col control-style btn-style cursor">
         <div class="control--row flex">
             <!-- ←  → -->
-            <div class="margin-h btn-value btn-top btn-style cancel">X</div>
-            <div class="margin-h btn-value btn-top btn-style" @click='enterEvent'>Enter</div>
-            <div class="margin-h btn-value btn-top btn-style accept">O</div>
+            <div class="margin-h btn-value btn-top btn-style cancel"><i class="fas fa-times"></i></div>
+            <div class="margin-h btn-value btn-top btn-style" @click='enterEvent'>OK</div>
+            <div class="margin-h btn-value btn-top btn-style accept"><i class="fas fa-check"></i></div>
         </div>
         <div class="control--row flex-col">
             <div class="flex">

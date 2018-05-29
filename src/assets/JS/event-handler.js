@@ -5,6 +5,25 @@ import {Store} from "./state-store";
 import { Num, NumObj } from "./number-object"
 import mod from "./methods"
 
+
+function getState(target = false){
+    //get Store.target if there is one to control edit state
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = len > 0 ? p[len - 1] : false
+    lastNum = target || lastNum
+    return {
+        empty: !!target || len < 1,
+        last: {
+            hasValue: lastNum.value !== 'notSet' && lastNum.value !== false,
+            isParentheses: lastNum.parentheses,
+            hasNest: lastNum && lastNum.getLast() ? true : false,
+            lastNum: lastNum,
+            isFraction: lastNum && lastNum.op === '/' ? true : false
+        },
+    }
+}
+
 function addNumber(n = 'notSet'){
     let S = getState()
     let p = Store.numArray
@@ -12,7 +31,8 @@ function addNumber(n = 'notSet'){
     let lastNum = S.last.lastNum
     if (n === 'notSet' || Store.target) return
     if(S.empty){
-        p.push(new NumObj(n))   
+        p.push((new NumObj(n)).changeOp('+'))
+        console.log(p[0])
     }else if(!S.last.isParentheses){
         console.log(n)
         lastNum.addValue(n)
@@ -21,23 +41,6 @@ function addNumber(n = 'notSet'){
         lastNum.getLast().addValue(n)
     }
     console.log(lastNum)
-}
-
-function getState(target = false){
-    let p = Store.numArray
-    let len = p.length
-    let lastNum = len > 0 ? p[len - 1] : false
-    lastNum = target || lastNum
-    return {
-        empty: !!target || len < 1,
-        last: {
-            hasValue: lastNum.value !== ('notSet' && false),
-            isParentheses: lastNum.parentheses,
-            hasNest: lastNum && lastNum.getLast() ? true : false,
-            lastNum: lastNum,
-            isFraction: lastNum && lastNum.op === '/' ? true : false
-        },
-    }
 }
 
 function addOperator(o = 'notSet'){
@@ -70,16 +73,65 @@ function addOperator(o = 'notSet'){
 }
 
 function Operator(o = 'notSet') {
-    let S = setState()
+    let S = getState()
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = S.last.lastNum    
     if (o === 'notSet' || Store.target) return
-
+    if (!S.last.isParentheses) {
+        if (!S.last.hasValue){
+            lastNum.changeOp(o)
+        } else {
+            p.push(new NumObj('notSet', o))
+        }
+    } else if (S.last.isParentheses) {
+        let lastNest = lastNum.getLast()
+        //........
+        if (!S.last.hasValue) {
+            if (S.last.hasNest) {
+                if (lastNest.value === 'notSet') {
+                    lastNest.changeOp(o)
+                } else {
+                    p.push(new NumObj('notSet', o))
+                }
+            }
+        }
+    }    
 }
 
 export function init() {
     EventBus.$on('enter', x => {
         console.log('enter group')
         console.log(NumObj)
+        let S = getState()
+        let p = Store.numArray
+        let len = p.length
+        let lastNum = S.last.lastNum  
+        if(!S.last.hasValue){
+            p.pop()
+        }
+        let n = []
+        p.forEach(x=>{
+            n.push(new Num(x.value))
+            if (['+', '-'].includes(x.op)){
+                n.slice(-1)[0].setProperty('sign', x.op)
+            } else if (['*', '/'].includes(x.op)){
+                n.slice(-1)[0].setProperty('op', x.op)
+            }
+        })
+        console.log(n)
+        let m = n.reduce((acc, cur, i)=>{
+            if(cur.op === false){
+                acc.push([cur])
+            }else{
+                acc[acc.length-1].push(cur)
+            }
+            return acc
+        }, [])
+        console.log('printing m')
+        console.log(m)
     })
+
     //Parentheses start group
     EventBus.$on('btn-parentheses', e => {
         console.log('parentheses group')
@@ -89,13 +141,13 @@ export function init() {
         addNumber(x)
     })
 
-    //for ['*', '/']
     EventBus.$on('btn-div', x => {
         let S = getState();
         if (x !== '/' || S.empty || S.last.isFraction) return
         console.log('/ group')
         Operator(x)
     })
+
     EventBus.$on('btn-mul', x => {
         let S = getState();
         if (x !== '*' || S.empty || (S.last.isFraction && !S.last.isParentheses) ) return

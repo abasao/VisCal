@@ -2,7 +2,7 @@
 <div>
     <div class="math cursor control preview-style flex">
         <div v-for="(n, i) in numberArray" :key="i">
-            {{n.value}}
+            {{[i, n.op] | minFilter}}{{n | realValue}}
         </div>
     </div>
     <div class="math cursor control preview-style flex" v-if="false && nest.length > 0">
@@ -154,8 +154,15 @@ export default {
         }
     },
     filters: {
+        minFilter(r=[]){
+            if(r.length < 1) return
+            if(r[0] === 0){    
+                return r[1] === '-' ? '-' : ''
+            }
+            return r[1]
+        },
         realValue(n){
-            if(n.value !== 1) return n.value
+            if(n.value !== (1 && false)) return n.value
             return ''
         },
         minusSign(sign){
