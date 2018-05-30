@@ -16,42 +16,40 @@
                     </div>
                 </div>
             </div>
-            <!-- Sibling -->
-            <div class="flex" v-if="holder && !showNest">
-                <!-- <div class="flex" v-if="numberProp.op">
-                    {{numberProp.op | operator}}
-                </div> -->
-                <div class="flex " v-for="(sib, index) in numberProp.sibling" :key="index">
-                    <div class="object-value " @click='doOperation(sib.id, "###")' v-if="sib.op">
-                        {{sib.op | operator}}
-                    </div>
-                    <div v-else-if="showSign(index, sib.value)">
-                        <span class="negative-sign" >
-                            {{sib.value | sign}}
-                        </span>
-                    </div>
-                    <number v-bind="{numberProp: sib, functions: sib.methods(), root: false}"/>
-                </div>
-            </div>
-            <!-- fraction -->
+            <!-- Nest no fraction -->
             <div class="flex" v-else-if="showNest">
+                <div class="firstone" @click="doOperation(true, numberProp.op)" :hidden='root'>
+                    {{numberProp.op | operator}}
+                </div>
+                <!-- implement parentheses nest -->
+                <parentheses :bool='showParentheses'>
+                    <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
+                        <div class="object-value secondone" @click='doOperation(num.id, "+")' v-if="num.op">
+                            {{num.op | operator}}
+                        </div>
+                        <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
+                    </div>
+                </parentheses>
+            </div>            
+            <!-- fraction -->
+            <div class="flex" v-else-if="false && showNest">
                 <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
                     {{numberProp.nestOp | operator}}
                 </div>
                 <!-- implement parentheses nest -->
                 <parentheses :bool='showParentheses'>
-                    <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
-                        <div class="object-value " @click='doOperation(num.id, "+")' v-if="showSign(index)">
-                            {{num.value | sign}}
+                    <div class="flex " v-for="(frNum, index) in numberProp.nested" :key="index">
+                        <div class="object-value " @click='doOperation(frNum.id, "+")' v-if="showSign(index)">
+                            {{frNum.value | sign}}
                         </div>
-                        <div v-else-if="showSign(index, num.value)">
+                        <div v-else-if="showSign(index, frNum.value)">
                             <span class="negative-sign" >
-                                {{num.value | sign}}
+                                {{frNum.value | sign}}
                             </span>
                         </div>
-                        <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
+                        <number v-bind="{numberProp: frNum, functions: frNum.methods(), root: false}"/>
                     </div>
-                </parentheses>                 
+                </parentheses>
             </div>
 
         <!-- </div> -->

@@ -112,24 +112,38 @@ export function init() {
         }
         let n = []
         p.forEach(x=>{
-            n.push(new Num(x.value))
-            if (['+', '-'].includes(x.op)){
-                n.slice(-1)[0].setProperty('sign', x.op)
-            } else if (['*', '/'].includes(x.op)){
-                n.slice(-1)[0].setProperty('op', x.op)
-            }
+            n.push(new Num(x.value, false, '+', x.op))
         })
-        console.log(n)
         let m = n.reduce((acc, cur, i)=>{
-            if(cur.op === false){
+            if(['+','-'].includes(cur.op)){
+                console.log('+-')
                 acc.push([cur])
             }else{
+                console.log('*/')
                 acc[acc.length-1].push(cur)
             }
             return acc
         }, [])
-        console.log('printing m')
-        console.log(m)
+        m.map(group=>{
+            Store.numbers[0].addExpression([new Num(group[0].value, false, '+', group[0].op)])
+            group[0]
+            if(group.length > 1){
+                let holder = Store.numbers[0].getLast('nested')
+                holder.createHolder()
+                group.shift()
+                if(group.length > 0){
+                    group.forEach(x=>{
+                        holder.addChild([x.value, false, '+', x.op])
+                    })
+                }
+            }
+        })
+        console.log(Store.numbers[0].getLast('nested'))
+        // console.log(Store.numbers[0])
+        // Store.numbers[0].addExpression(p.nested)
+        // Store.reset();        
+        // console.log('printing m')
+        // console.log(m)
     })
 
     //Parentheses start group

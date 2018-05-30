@@ -9,8 +9,8 @@ export class Num {
         this.value = val;
         this.sign = sign;
         this.pow = [1];
-        this.op = false; //for sibling interaction sibling[a] op sibling[b]
-        this.nestOp = operator; //for (sibling) nestOp (nest)
+        this.op = operator; //for sibling interaction sibling[a] op sibling[b]
+        this.nestOp = false; //for (sibling) nestOp (nest), deleting this
         this.holder = false; //number is converted to holding object that holds nest and/or sibling
         this.factor = mod.factorize(val);
         this.sibling = [];
@@ -121,6 +121,7 @@ export class Num {
         this.factor = false;
         this.remove = false;
         this.op = false;
+        this.holder = true;
         this.nestOp = false;
         this.id.push(id || 0);
         return this
@@ -175,6 +176,41 @@ export class Num {
         param.forEach(x => {
             x = typeof x === 'object' ? x : [x]
             this.sibling.push((new Num(...x)))
+        })
+
+        // if(this.nestOp || this.op){
+        //     this.sibling[1].setProperty('op', this.nestOp || this.op || '*')
+        //     this.nestOp = this.op = false;
+        // }
+
+        this.setId(this.id);
+        this.setParentMethod();
+        return this
+    }
+    createHolder(){
+        if (this.nested.length > 0) return
+        this.addChild([this.value])
+        this.value = false;
+        this.holder = true;
+        this.setId(this.id);
+        this.setParentMethod();
+        return this        
+        // this.op = this.sign;
+        // this.nestOp = false;
+    }
+    addNested(...param) {
+        if (!param || this.nested.length > 0) return
+        //moving first number object to sibling level, then adding sibling in param
+        if(this.nested.length === 0){
+            this.value = false;
+            this.holder = true;
+            this.op = this.sign;
+            this.nestOp = false; //has to go away
+        }
+
+        param.forEach(x => {
+            x = typeof x === 'object' ? x : [x]
+            this.nested.push((new Num(...x)))
         })
 
         // if(this.nestOp || this.op){
