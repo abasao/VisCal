@@ -18,13 +18,13 @@
             </div>
             <!-- Nest no fraction -->
             <div class="flex" v-else-if="showNest">
-                <div class="firstone" @click="doOperation(true, numberProp.op)" :hidden='root'>
+                <!-- <div @click="doOperation(true, numberProp.op)" :hidden='root'>
                     {{numberProp.op | operator}}
-                </div>
+                </div> -->
                 <!-- implement parentheses nest -->
                 <parentheses :bool='showParentheses'>
                     <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
-                        <div class="object-value secondone" @click='doOperation(num.id, "+")' v-if="num.op">
+                        <div class="object-value" v-if="num.op">
                             {{num.op | operator}}
                         </div>
                         <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
@@ -33,11 +33,11 @@
             </div>            
             <!-- fraction -->
             <div class="flex" v-else-if="false && showNest">
-                <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
+                <!-- <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
                     {{numberProp.nestOp | operator}}
-                </div>
+                </div> -->
                 <!-- implement parentheses nest -->
-                <parentheses :bool='showParentheses'>
+                <!-- <parentheses :bool='showParentheses'>
                     <div class="flex " v-for="(frNum, index) in numberProp.nested" :key="index">
                         <div class="object-value " @click='doOperation(frNum.id, "+")' v-if="showSign(index)">
                             {{frNum.value | sign}}
@@ -49,7 +49,7 @@
                         </div>
                         <number v-bind="{numberProp: frNum, functions: frNum.methods(), root: false}"/>
                     </div>
-                </parentheses>
+                </parentheses> -->
             </div>
 
         <!-- </div> -->

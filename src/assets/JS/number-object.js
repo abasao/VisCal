@@ -384,6 +384,12 @@ export class NumObj {
                 break;
         }
     }
+    makeParentheses(){
+
+    }
+    undoParentheses(){
+        
+    }
     changeOp(o = 'notSet'){
         if (o === 'notSet') return
         switch (o) {

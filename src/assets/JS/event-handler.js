@@ -24,6 +24,29 @@ function getState(target = false){
     }
 }
 
+function addParentheses(state = false){
+    let S = getState()
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = S.last.lastNum 
+    if(state === false) return
+    if (state === 'start' && !S.last.hasNest){
+        if(!S.last.hasValue){
+            lastNum.parentheses = true
+        } else if (S.last.hasValue){
+            addOperator('*')
+            p[len].parentheses = true  
+        }
+    } else if (state === 'end' && S.last.isParentheses){
+        if (S.last.hasNest) {
+            [false, 'notSet'].includes(S.last.getLast().value) ? S.last.nested.pop() : false
+        }
+        if(p[len-1].nested.length < 1){
+            p[len-1].nested.pop()
+        }
+    }
+}
+
 function addNumber(n = 'notSet'){
     let S = getState()
     let p = Store.numArray
@@ -115,6 +138,7 @@ export function init() {
             n.push(new Num(x.value, false, '+', x.op))
         })
         let m = n.reduce((acc, cur, i)=>{
+            //doesnt account for parentheses forced groups, 
             if(['+','-'].includes(cur.op)){
                 console.log('+-')
                 acc.push([cur])
@@ -124,21 +148,23 @@ export function init() {
             }
             return acc
         }, [])
-        m.map(group=>{
-            Store.numbers[0].addExpression([new Num(group[0].value, false, '+', group[0].op)])
-            group[0]
-            if(group.length > 1){
-                let holder = Store.numbers[0].getLast('nested')
-                holder.createHolder()
-                group.shift()
-                if(group.length > 0){
-                    group.forEach(x=>{
-                        holder.addChild([x.value, false, '+', x.op])
-                    })
-                }
-            }
-        })
+        console.log(n)
+        // m.map(group=>{
+        //     Store.numbers[0].addExpression([new Num(group[0].value, false, '+', group[0].op)])
+        //     group[0]
+        //     if(group.length > 1){
+        //         let holder = Store.numbers[0].getLast('nested')
+        //         holder.createHolder()
+        //         group.shift()
+        //         if(group.length > 0){
+        //             group.forEach(x=>{
+        //                 holder.addChild([x.value, false, '+', x.op])
+        //             })
+        //         }
+        //     }
+        // })
         console.log(Store.numbers[0].getLast('nested'))
+        console.log(Store.numbers[0].nested)
         // console.log(Store.numbers[0])
         // Store.numbers[0].addExpression(p.nested)
         // Store.reset();        
@@ -149,6 +175,13 @@ export function init() {
     //Parentheses start group
     EventBus.$on('btn-parentheses', e => {
         console.log('parentheses group')
+        let par = Store.parentheses; 
+        if(!par){
+            addParentheses('start')
+        }else{
+            addParentheses('end')
+        }
+        Store.parentheses = !par
     })
     EventBus.$on('btn-number', x => {
         console.log('number group')
@@ -164,7 +197,13 @@ export function init() {
 
     EventBus.$on('btn-mul', x => {
         let S = getState();
-        if (x !== '*' || S.empty || (S.last.isFraction && !S.last.isParentheses) ) return
+        if (x !== '*' || S.empty) return
+        if (S.last.isFraction && !S.last.isParentheses && S.hasValue){
+            let val = S.last.value
+            S.last.value = 'notSet'
+            EventBus.$emit('btn-parentheses')
+            EventBus.$emit('btn-number', '' + val)
+        }
         console.log('* group')
         Operator(x)
     })
@@ -177,7 +216,6 @@ export function init() {
         console.log('+- group')
         addOperator(x)
     })
-    
 }
 
 export function initPaused(){

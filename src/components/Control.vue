@@ -12,7 +12,7 @@
                     <span class="btn-value">×</span></div>
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('÷', $event)">
                     <span class="btn-value">÷</span></div>
-                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('(  )', $event)">
+                <div class="control--btn margin-h margin-v btn-style flex" :class="parenthesesState" @click="btnClick('(  )', $event)">
                     <span class="btn-value">(  )</span></div>
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('^', $event)">
                     <span class="btn-value">^</span></div>
@@ -54,7 +54,7 @@
 <script>
 'use strict'
 import { EventBus } from "../assets/JS/event-bus";
-
+import { Store } from "../assets/JS/state-store";
 export default {
     data(){
         return {
@@ -99,6 +99,11 @@ export default {
 
         enterEvent(){
             EventBus.$emit('enter', 'nothing')
+        }
+    },
+    computed: {
+        parenthesesState(){
+            return Store.parentheses ? 'btn-parentheses': ''
         }
     }
 }

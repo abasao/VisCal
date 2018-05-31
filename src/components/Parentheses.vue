@@ -1,5 +1,5 @@
 <template>
-  <div class="flex">
+  <div class="flex margin-h">
       {{ parentheses[0] }}
       <slot>
 
@@ -28,3 +28,4 @@ export default {
     }
 }
 </script>
+
