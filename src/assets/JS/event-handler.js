@@ -15,13 +15,36 @@ function getState(target = false){
     return {
         empty: !!target || len < 1,
         last: {
-            hasValue: lastNum.value !== 'notSet' && lastNum.value !== false,
+            hasValue: lastNum.value !== false,
             isParentheses: lastNum.parentheses,
             hasNest: lastNum && lastNum.getLast() ? true : false,
             lastNum: lastNum,
             isFraction: lastNum && lastNum.op === '/' ? true : false
         },
     }
+}
+
+function addNumber(n = 'notSet'){
+    let S = getState()
+    let p = Store.numArray
+    let len = p.length
+    let lastNum = S.last.lastNum
+    if (n === 'notSet' || Store.target) return
+    if(S.empty){
+        p.push(new NumObj(n, '+'))//.changeOp('+'))
+        console.log(p[0])
+    }else if(!S.last.isParentheses){
+        console.log(n)
+        lastNum.addValue(n)
+        console.log(lastNum)
+    }else if(lastNum.parentheses){
+        if(S.last.hasNest){
+            lastNum.getLast().addValue(n)
+        }else{
+            lastNum.nested.push(new NumObj(n, '+'))
+        }
+    }
+    console.log(lastNum)
 }
 
 function addParentheses(state = false){
@@ -39,32 +62,15 @@ function addParentheses(state = false){
         }
     } else if (state === 'end' && S.last.isParentheses){
         if (S.last.hasNest) {
-            [false, 'notSet'].includes(S.last.getLast().value) ? S.last.nested.pop() : false
+            lastNum.getLast().value === false ? lastNum.nested.pop() : false
         }
         if(p[len-1].nested.length < 1){
-            p[len-1].nested.pop()
+            p[len-1].parentheses = false;
         }
     }
 }
 
-function addNumber(n = 'notSet'){
-    let S = getState()
-    let p = Store.numArray
-    let len = p.length
-    let lastNum = S.last.lastNum
-    if (n === 'notSet' || Store.target) return
-    if(S.empty){
-        p.push((new NumObj(n)).changeOp('+'))
-        console.log(p[0])
-    }else if(!S.last.isParentheses){
-        console.log(n)
-        lastNum.addValue(n)
-        console.log(lastNum)
-    }else if(lastNum.parentheses){
-        lastNum.getLast().addValue(n)
-    }
-    console.log(lastNum)
-}
+
 
 function addOperator(o = 'notSet'){
     let S = getState()
@@ -74,24 +80,25 @@ function addOperator(o = 'notSet'){
     if (o === 'notSet' || Store.target) return
     if(S.empty){
         p.push(new NumObj('notSet', o))
-    }else if(!S.last.isParentheses){
-        if (!S.last.hasValue){
+    } else if (!Store.parentheses){
+        if (!S.last.hasValue && !S.last.hasNest){
             lastNum.changeOp(o)
         }else{
             p.push(new NumObj('notSet', o))
         }
-    }else if(S.last.isParentheses){
+    } else if (Store.parentheses && S.last.isParentheses){
         let lastNest = lastNum.getLast()
-        if(!S.last.hasValue){
             if(S.last.hasNest){
-                if(lastNest.value === 'notSet'){
+                if(lastNest.value === false){
                     lastNest.changeOp(o)
                 }else{
-                    p.push(new NumObj('notSet', o))
+                    lastNum.nested.push(new NumObj('notSet', o))
                 }
+            } else if (lastNum.nested.length < 1){
+                lastNum.nested.push(new NumObj('notSet', o))
             }
+
         }
-    }
     console.log(p)
 }
 
@@ -101,23 +108,22 @@ function Operator(o = 'notSet') {
     let len = p.length
     let lastNum = S.last.lastNum    
     if (o === 'notSet' || Store.target) return
-    if (!S.last.isParentheses) {
-        if (!S.last.hasValue){
+    if (!Store.parentheses) {
+        if (!S.last.hasValue && !S.last.hasNest){
             lastNum.changeOp(o)
         } else {
             p.push(new NumObj('notSet', o))
         }
-    } else if (S.last.isParentheses) {
+    } else if (Store.parentheses && S.last.isParentheses) {
         let lastNest = lastNum.getLast()
-        //........
-        if (!S.last.hasValue) {
-            if (S.last.hasNest) {
-                if (lastNest.value === 'notSet') {
-                    lastNest.changeOp(o)
-                } else {
-                    p.push(new NumObj('notSet', o))
-                }
+        if (S.last.hasNest) {
+            if (lastNest.value === false) {
+                lastNest.changeOp(o)
+            } else {
+                lastNum.nested.push(new NumObj('notSet', o))
             }
+        }else if(lastNum.nested.length < 1){
+            lastNum.changeOp(o)
         }
     }    
 }
@@ -172,7 +178,39 @@ export function init() {
         // console.log(m)
     })
 
-    //Parentheses start group
+    EventBus.$on('undo', x => {
+        console.log('undo group')
+        let S = getState()
+        let p = Store.numArray
+        let len = p.length
+        let lastNum = S.last.lastNum
+        if(S.empty) return
+        if(lastNum.parentheses){
+            if(S.last.hasNest){
+                console.log('parentheses  and has nest')
+                lastNum.nested.pop()
+                if(lastNum.nested.length < 1){
+                    p.pop()
+                }
+            }else{
+                console.log('parentheses  no nest')
+                lastNum.parentheses = false;
+            }
+        }else if(!lastNum.parentheses){
+            console.log('not parentheses')
+            if(S.last.hasValue){
+                lastNum.value = false
+            }else{
+                p.pop()
+            }
+        }
+        if(p.length > 0 && p[p.length-1].parentheses){
+            Store.parentheses = true;
+        }else{
+            Store.parentheses = false;
+        }
+    })
+
     EventBus.$on('btn-parentheses', e => {
         console.log('parentheses group')
         let par = Store.parentheses; 
@@ -183,6 +221,7 @@ export function init() {
         }
         Store.parentheses = !par
     })
+
     EventBus.$on('btn-number', x => {
         console.log('number group')
         addNumber(x)
@@ -197,10 +236,12 @@ export function init() {
 
     EventBus.$on('btn-mul', x => {
         let S = getState();
+        let lastNum = S.last.lastNum
         if (x !== '*' || S.empty) return
-        if (S.last.isFraction && !S.last.isParentheses && S.hasValue){
-            let val = S.last.value
-            S.last.value = 'notSet'
+        if (S.last.isFraction && !S.last.isParentheses && S.last.hasValue){
+            let val = lastNum.value
+            console.log(lastNum.value)
+            lastNum.value = false
             EventBus.$emit('btn-parentheses')
             EventBus.$emit('btn-number', '' + val)
         }
@@ -208,7 +249,6 @@ export function init() {
         Operator(x)
     })
 
-    //for ['+', '-']
     EventBus.$on('btn-add', x => {
         let S = getState();
         if (!['+', '-'].includes(x)) return
