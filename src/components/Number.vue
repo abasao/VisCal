@@ -1,10 +1,10 @@
 <template>
-    <div>
+    <div :class="{'item-style': !root}">
         <!-- implement default component behavior -->        
         <!-- <div class="" v-if="normal" :class="{flex: root, flex: !root, fr: showFraction, lmao: !true}"> -->
 
             <!-- Number value -->
-            <div class="math--object" @click='showFactor=!showFactor' v-if="!holder && !root">
+            <div class="math--object" @click='showFactor=!showFactor' v-if="numberProp.value">
                 <!-- actual number value -->
                 <div class="object-value object-margin">
                     {{numberProp.value | absolute}}
@@ -18,14 +18,10 @@
             </div>
             <!-- Nest no fraction -->
             <div class="flex" v-else-if="showNest">
-                <!-- <div @click="doOperation(true, numberProp.op)" :hidden='root'>
-                    {{numberProp.op | operator}}
-                </div> -->
-                <!-- implement parentheses nest -->
                 <parentheses :bool='showParentheses'>
                     <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
                         <div class="object-value" v-if="num.op">
-                            {{num.op | operator}}
+                            {{num.op, index | operator}}
                         </div>
                         <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
                     </div>
@@ -158,7 +154,8 @@ export default {
         absolute(value){
             return value >= 0 ? value : Math.abs(value)
         },
-        operator(op){
+        operator(op, i){
+            if(i === 0 && op === '+') return ''
             let operator = false;
             switch (op) {
                 case '*':
@@ -175,7 +172,7 @@ export default {
                     break;
             
                 default:
-                    operator = '×';
+                    operator = '';
                     break;
             }
             return operator

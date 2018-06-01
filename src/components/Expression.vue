@@ -3,7 +3,7 @@
   <edit/>
   <div class="math margin-v">
       <div class="term-flex term-style cursor">
-            <number class="object-style object-hover margin-h" 
+            <number class="object-style margin-h" 
             v-bind="{numberProp: numbers, functions: numbers.methods(), root: true}"/>
       </div>
   </div>

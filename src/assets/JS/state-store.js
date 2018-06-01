@@ -37,16 +37,16 @@ const State = {
         },
 
     },
-
+    //make util function in method file for generating 3 types of expressions
     createState(){
         let l = this.Store.numbers.length;
         let n = (new Num()).setRoot(l).addChild(...mod.rng(4, 15, 3))
         n.nested = n.nested.map( (x, i) =>{
             // console.log(x)
             x.setProperty('op', Math.random() > 0.7 ? '-' : '+')
-            if(i === 0 && x.op === '+'){
-                x.op = false;
-            }
+            // if(i === 0 && x.op === '+'){
+            //     x.op = false;
+            // }
             return x
         })
         this.Store.numbers.push(n);

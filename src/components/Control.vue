@@ -2,10 +2,7 @@
     <div class="control flex-col control-style btn-style cursor">
         <div class="control--row flex">
             <!-- ←  → -->
-            <div class="margin-h btn-value btn-top btn-style" @click='undoEvent'>
-                <!-- <i class="fas fa-undo"></i> -->
-                <i class="fas fa-eraser"></i>
-                </div>
+            <div class="margin-h btn-value btn-top btn-style" @click='undoEvent'><i class="fas fa-eraser"></i></div>
             <div class="margin-h btn-value btn-top btn-style cancel"><i class="fas fa-trash-alt"></i></div>
             <div class="margin-h btn-value btn-top btn-style accept" @click='enterEvent'><i class="fas fa-check"></i></div>
         </div>
@@ -61,12 +58,6 @@ import { Store } from "../assets/JS/state-store";
 export default {
     data(){
         return {
-            btnArray: [
-                ['×', '÷', '(  )', '^'],
-                ['7', '8', '9', '−'],
-                ['4', '5', '6', '+'],
-                ['1', '2', '3', '0']
-            ],
             btn_num: ['0', '1', '2', '3','4', '5', '6','7', '8', '9'],
             btn_op: ['+', '−', '×', '÷'],
             btn_spec: [ '(  )', '^']            

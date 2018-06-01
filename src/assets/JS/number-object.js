@@ -12,7 +12,7 @@ export class Num {
         this.op = operator; //for sibling interaction sibling[a] op sibling[b]
         this.nestOp = false; //for (sibling) nestOp (nest), deleting this
         this.holder = false; //number is converted to holding object that holds nest and/or sibling
-        this.factor = mod.factorize(val);
+        this.factor = mod.factorize(val ? val : 1);
         this.sibling = [];
         this.nested = [];
         this.parentMethod;
@@ -294,7 +294,7 @@ export class Num {
             this.sibling.forEach(x => x.setValue())
         }else{
             this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
-            this.factor = mod.factorize(this.value);
+            this.factor = mod.factorize(this.value ? this.value : 1);
         }
 
     }

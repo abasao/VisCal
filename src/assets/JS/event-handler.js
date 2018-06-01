@@ -5,7 +5,7 @@ import {Store} from "./state-store";
 import { Num, NumObj } from "./number-object"
 import mod from "./methods"
 
-
+//move this to methods/util, same with all functions
 function getState(target = false){
     //get Store.target if there is one to control edit state
     let p = Store.numArray
@@ -21,6 +21,7 @@ function getState(target = false){
             lastNum: lastNum,
             isFraction: lastNum && lastNum.op === '/' ? true : false
         },
+        p: p
     }
 }
 
@@ -53,6 +54,10 @@ function addParentheses(state = false){
     let len = p.length
     let lastNum = S.last.lastNum 
     if(state === false) return
+    if(state === 'start' && S.last.isFraction && S.last.hasValue){
+        Store.parentheses = !Store.parentheses
+        return
+    }
     if (state === 'start' && !S.last.hasNest){
         if(!S.last.hasValue){
             lastNum.parentheses = true
@@ -137,11 +142,35 @@ export function init() {
         let len = p.length
         let lastNum = S.last.lastNum  
         if(!S.last.hasValue){
-            p.pop()
+            if (!S.last.hasNest){
+                p.pop()
+            }else{
+                if(S.last.lastNum.getLast().value === false){
+                    S.last.lastNum.nested.pop()
+                }
+                if (!S.last.lastNum.getLast()){
+                    p.pop()
+                }
+            }
         }
         let n = []
+        // p.map(x=>{
+        //     if(x.value === false && x.nested.length > 0){
+
+        //     }else{
+        //         return new Num(x.value, false, '+', x.op)
+        //     }
+        // })
         p.forEach(x=>{
-            n.push(new Num(x.value, false, '+', x.op))
+            if (x.value === false && x.nested.length > 0) {
+                n.push(new Num(false, false, '+', x.op))
+                n[n.length-1].addChild(...x.nested.map(y=>{
+                    console.log(y)
+                    return [y.value, false, '+', y.op]
+                }))
+            } else {
+                n.push(new Num(x.value, false, '+', x.op))
+            }            
         })
         let m = n.reduce((acc, cur, i)=>{
             //doesnt account for parentheses forced groups, 
@@ -155,6 +184,10 @@ export function init() {
             return acc
         }, [])
         console.log(n)
+        console.log(m)
+        m.forEach(group=>{            
+                Store.numbers[0].addExpression(group)
+        })
         // m.map(group=>{
         //     Store.numbers[0].addExpression([new Num(group[0].value, false, '+', group[0].op)])
         //     group[0]
@@ -169,8 +202,9 @@ export function init() {
         //         }
         //     }
         // })
-        console.log(Store.numbers[0].getLast('nested'))
-        console.log(Store.numbers[0].nested)
+
+        // console.log(Store.numbers[0].getLast('nested'))
+        // console.log(Store.numbers[0].nested)
         // console.log(Store.numbers[0])
         // Store.numbers[0].addExpression(p.nested)
         // Store.reset();        
@@ -219,7 +253,7 @@ export function init() {
         }else{
             addParentheses('end')
         }
-        Store.parentheses = !par
+        Store.parentheses = !Store.parentheses
     })
 
     EventBus.$on('btn-number', x => {

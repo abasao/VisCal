@@ -40,10 +40,14 @@ body{
             align-items: center;
         }
         .object-style {
-            background-color: #ccc;
+            background-color: #cccccc99;
             font-size: 1.5rem;
             border-radius: 5px;
             padding: 2px 10px;
+        }
+        .item-style{
+            background-color: #bbb;
+            border-radius: 5px;
         }
         .object-value:hover {
             color: black;
@@ -51,7 +55,7 @@ body{
         .object-margin{
             margin: 0 5px;
         }
-        .object-hover:hover {
+        .object-style:hover {
             background-color: hsl(100, 50%, 80%);
         }
         .object-factor {
