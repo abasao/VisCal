@@ -153,16 +153,11 @@ export function init() {
                 }
             }
         }
-        let n = []
-        // p.map(x=>{
-        //     if(x.value === false && x.nested.length > 0){
+        if(!S.empty){
 
-        //     }else{
-        //         return new Num(x.value, false, '+', x.op)
-        //     }
-        // })
-        p.forEach(x=>{
-            if (x.value === false && x.nested.length > 0) {
+            let n = []
+            p.forEach(x=>{
+                if (x.value === false && x.nested.length > 0) {
                 n.push(new Num(false, false, '+', x.op))
                 n[n.length-1].addChild(...x.nested.map(y=>{
                     console.log(y)
@@ -171,45 +166,28 @@ export function init() {
             } else {
                 n.push(new Num(x.value, false, '+', x.op))
             }            
-        })
-        let m = n.reduce((acc, cur, i)=>{
-            //doesnt account for parentheses forced groups, 
-            if(['+','-'].includes(cur.op)){
-                console.log('+-')
-                acc.push([cur])
-            }else{
-                console.log('*/')
-                acc[acc.length-1].push(cur)
-            }
-            return acc
-        }, [])
-        console.log(n)
-        console.log(m)
-        m.forEach(group=>{            
+            })
+            let m = n.reduce((acc, cur, i)=>{
+                //doesnt account for parentheses forced groups, 
+                if(['+','-'].includes(cur.op)){
+                    console.log('+-')
+                    acc.push([cur])
+                }else{
+                    console.log('*/')
+                    acc[acc.length-1].push(cur)
+                }
+                return acc
+            }, [])
+            console.log(n)
+            console.log(m)
+            m.forEach(group=>{            
                 Store.numbers[0].addExpression(group)
-        })
-        // m.map(group=>{
-        //     Store.numbers[0].addExpression([new Num(group[0].value, false, '+', group[0].op)])
-        //     group[0]
-        //     if(group.length > 1){
-        //         let holder = Store.numbers[0].getLast('nested')
-        //         holder.createHolder()
-        //         group.shift()
-        //         if(group.length > 0){
-        //             group.forEach(x=>{
-        //                 holder.addChild([x.value, false, '+', x.op])
-        //             })
-        //         }
-        //     }
-        // })
+            })
+            Store.reset();        
+        }
 
-        // console.log(Store.numbers[0].getLast('nested'))
-        // console.log(Store.numbers[0].nested)
-        // console.log(Store.numbers[0])
-        // Store.numbers[0].addExpression(p.nested)
-        // Store.reset();        
-        // console.log('printing m')
-        // console.log(m)
+        console.log('printing numbers')
+        console.log(Store.numbers[0])
     })
 
     EventBus.$on('undo', x => {

@@ -7,13 +7,9 @@ export class Num {
         this.id = id || [];
         this.viewState = [];
         this.value = val;
-        this.sign = sign;
         this.pow = [1];
         this.op = operator; //for sibling interaction sibling[a] op sibling[b]
-        this.nestOp = false; //for (sibling) nestOp (nest), deleting this
-        this.holder = false; //number is converted to holding object that holds nest and/or sibling
         this.factor = mod.factorize(val ? val : 1);
-        this.sibling = [];
         this.nested = [];
         this.parentMethod;
     }
@@ -30,25 +26,6 @@ export class Num {
                     this.nestOp = this.nestOp ? false : this.nestOp;
                 }
                 break;
-            case 'nestOp':
-                if (!unset) {
-                    this.nestOp = val || this.nestOp;
-                } else {
-                    //if it's false, set it equal to sibling op or given value
-                    //users will likely press operator before parentheses, not knowing
-                    //operator is automatically added
-                    this.nestOp = !this.nestOp ? this.op || val : this.nestOp;
-                    this.op = this.op ? false: this.op;
-                }            
-                break;
-            case 'sign':
-                if (!unset) {
-                    this.sign = val || this.sign;
-                } else {
-                    this.sign = !this.sign ? val : this.sign;
-                }             
-                this.sign = val || this.sign;
-                break;
             case 'viewState':
                 if (!this.viewState.includes(val) && !this.root) {
                     this.viewState.push(val)
@@ -57,9 +34,6 @@ export class Num {
             case 'pow':
                 this.pow = [val] || this.pow;
                 break;
-            case 'holder':
-                this.holder = val || this.holder;
-                break;
             default:
                 break;
         }
@@ -67,40 +41,21 @@ export class Num {
     }
 
     setLast(target = false, ...val){
-        switch (target) {
-            case 'nested':
-                if(this.nested.length > 0){
-                    this.nested[this.nested.length-1].setProperty(...val)
-                }
-                break;
-            case 'sibling':
-                if (this.sibling.length > 0) {
-                    this.sibling[this.sibling.length - 1].setProperty(...val)
-                }
-                break;
-        
-            default:
-                break;
-        }
+            if(target && this.nested.length > 0){
+                this.nested[this.nested.length-1].setProperty(...val)
+            }
     }
     getLast(target = false){
-        let targetEl = false;
-        switch (target) {
-            case 'nested':
-                if(this.nested.length > 0){
-                    targetEl = this.nested[this.nested.length -1]
-                }
-                break;
-            case 'sibling':
-                if(this.sibling.length > 0){
-                    targetEl = this.sibling[this.sibling.length -1]
-                }
-                break;
-        
-            default:
-                break;
+        if(target && this.nested.length > 0){
+            return this.nested[this.nested.length -1]
         }
-        return targetEl
+        return false
+    }
+    getNest(i=0){
+        if(this.nested.length > 0 && i < this.nested.length){
+            return this.nested[i]
+        }
+        return false
     }
     setViewState(state = false){
         if(this.root || !state) return
@@ -121,8 +76,6 @@ export class Num {
         this.factor = false;
         this.remove = false;
         this.op = false;
-        this.holder = true;
-        this.nestOp = false;
         this.id.push(id || 0);
         return this
     }
@@ -136,22 +89,6 @@ export class Num {
         this.setValue()
     }
 
-    //only for use when adding expression
-    evaluateSign() {
-        this.value = this.sign === '+' ? this.value : -1 * this.value
-        if (this.nested.length > 0) {
-            this.nested.forEach(element => {
-                element.evaluateSign()
-            });
-        }
-        if (this.sibling.length > 0) {
-            this.sibling.forEach(element => {
-                element.evaluateSign()
-            });
-        }
-        return this
-    }
-
     addChild(...param) {
         if (!param) return
         param.forEach(x => {
@@ -163,90 +100,23 @@ export class Num {
         return this
     }
 
-    addSibling(...param) {
-        if (!param || this.nested.length > 0) return
-        //moving first number object to sibling level, then adding sibling in param
-        if(this.sibling.length === 0){
-            this.value = false;
-            this.holder = true;
-            this.op = this.sign;
-            this.nestOp = false;
-        }
-
-        param.forEach(x => {
-            x = typeof x === 'object' ? x : [x]
-            this.sibling.push((new Num(...x)))
-        })
-
-        // if(this.nestOp || this.op){
-        //     this.sibling[1].setProperty('op', this.nestOp || this.op || '*')
-        //     this.nestOp = this.op = false;
-        // }
-
-        this.setId(this.id);
-        this.setParentMethod();
-        return this
-    }
-    createHolder(){
-        if (this.nested.length > 0) return
-        this.addChild([this.value])
-        this.value = false;
-        this.holder = true;
-        this.setId(this.id);
-        this.setParentMethod();
-        return this        
-        // this.op = this.sign;
-        // this.nestOp = false;
-    }
-    addNested(...param) {
-        if (!param || this.nested.length > 0) return
-        //moving first number object to sibling level, then adding sibling in param
-        if(this.nested.length === 0){
-            this.value = false;
-            this.holder = true;
-            this.op = this.sign;
-            this.nestOp = false; //has to go away
-        }
-
-        param.forEach(x => {
-            x = typeof x === 'object' ? x : [x]
-            this.nested.push((new Num(...x)))
-        })
-
-        // if(this.nestOp || this.op){
-        //     this.sibling[1].setProperty('op', this.nestOp || this.op || '*')
-        //     this.nestOp = this.op = false;
-        // }
-
-        this.setId(this.id);
-        this.setParentMethod();
-        return this
-    }
-
     clearRemoved(){
         if(this.nested.length > 0){
             this.nested = this.nested.filter(x => x.remove !== true);
         }
-        if(this.sibling.length > 0){
-            this.sibling = this.sibling.filter(x => x.remove !== true);
-        }
         this.setId(this.id);
         return this
     }
 
-    setRemove(value){
-        this.remove = value || this.remove;
+    setRemove(value = 'notSet'){
+        this.remove = value !=='notSet' ? value : this.remove;
     }
 
     toInt(){
-        if(this.holder){
-            if(this.nested.length > 0 ){
-                this.nested.forEach(child => {
-                    child.toInt()
-                });
-            }
-            this.sibling.forEach(sib => {
-                sib.toInt()
+
+        if(this.nested.length > 0 ){
+            this.nested.forEach(child => {
+                child.toInt()
             });
         }else{
             this.value = parseInt(this.value, 10);
@@ -257,14 +127,9 @@ export class Num {
     setId(id) {
         if (!id) return
         this.id = typeof id === 'object' ? id : [id];
-        if(this.holder){
-            if (this.nested.length > 0) {
-                this.nested.forEach((child, i) => {
-                    child.setId([...id, 'nested', i])
-                })
-            }
-            this.sibling.forEach((sib, i) => {
-                sib.setId([...id, 'sibling', i])
+        if (this.nested.length > 0) {
+            this.nested.forEach((child, i) => {
+                child.setId([...id, 'nested', i])
             })
         }
     }
@@ -273,33 +138,79 @@ export class Num {
         if(typeof parent === 'function'){
             this.parentMethod = parent;
         }
-        if(this.holder){
-            if (this.nested.length > 0) {
-                this.nested.forEach(child => {
-                    child.setParentMethod(this.addExpression.bind(this))
-                })
-            }
-            this.sibling.forEach(sib => {
-                sib.setParentMethod(this.addExpression.bind(this))
-            })
 
+        if (this.nested.length > 0) {
+            this.nested.forEach(child => {
+                child.setParentMethod(this.addExpression.bind(this))
+            })
         }
     }
 
     setValue(value = false, f = false){
-        if(this.holder){
+        if(this.nested.length > 0){
             if(arguments.length === 0 && this.nested.length > 0){
                 this.nested.forEach(x=>x.setValue())
             }
-            this.sibling.forEach(x => x.setValue())
         }else{
             this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
             this.factor = mod.factorize(this.value ? this.value : 1);
         }
 
     }
-
-    siblingOperator(f = false, i){
+    isDetached(i = 0){
+        let det = []
+        if(i + 1 >= this.nested.length){
+            det.push(true)
+        } else{
+            det.push(['+', '-'].includes(this.nested[i + 1].op) ? true : false)
+        }
+        if(i - 1 <= this.nested.length){
+            det.push(true)
+        }else{
+            det.push(['+', '-'].includes(this.nested[i + 1].op) ? true : false)
+        }
+        return det
+    }
+    index(){
+        return this.id.slice(-1)[0]
+    }
+    add(i){
+        let cur = this.nested[i]
+        let prev = this.nested[i-1]
+        if(!cur.getNest() && !prev.getLast()){
+            console.log('normal addition')
+            if(cur.op === '+'){
+                if(prev.op === '+'){
+                    prev.setValue(cur.value + prev.value)
+                }else{
+                    prev.setValue(cur.value - prev.value)
+                }
+            }else{
+                if (prev.op === '+') {
+                    prev.setValue(prev.value - cur.value)
+                } else {
+                    prev.setValue(- cur.value - prev.value)
+                }
+            }
+            cur.remove = true
+            if(prev.value < 0){
+                prev.setValue(-1*prev.value)
+                prev.op = '-'
+            }else if(prev.value > 0){
+                prev.op = '+'
+            }else{
+                prev.remove = true
+            }
+        }else{
+            console.log('nested addition')
+        }
+        this.clearRemoved()
+    }
+    mul(i){
+        console.log('multiplier')
+        let first = this.nested[i]
+    }
+    doOperation(f = false, i){
         if(!f && !i) return
         let n = this.nested;
         if (n[i - 1].nested.length > 0 || n[i].nested.length>0) return
@@ -307,37 +218,49 @@ export class Num {
         n.splice(i,1);
         this.setId(this.id);
     }
-
-    parentOperator(f = false){
+    //this is not needed, nothing operates on nest anymore
+    doNestedOperation(f = false){
         if(!f && this.nested && this.nested.length < 1 ) return
         this.nested.forEach(x => x.setValue(false, f.bind(null, this.value)))
         this.parentMethod(this.nested, this.id.pop(), 1)
     }
 
-    Commander(command){
-        switch (command) {
-            case 'multiply':
-                this.parentOperator((factor, x) => x * factor)
+    Commander(i=0){
+        if (this.nested.length < 2) return
+        switch (this.nested[i].op) {
+            case '+':
+            case '-':
+                this.add(i)
                 break;
-            case 'divide':
-                this.parentOperator((factor, x) => x / factor)
-                break;
-            case 'power':
-                this.parentOperator((factor, x) => {
-                    return Array(Math.abs(factor)).fill(x).reduce((acc, val) => {
-                        return factor > 0 ? acc * val : acc / val
-                    }, 1)
-                })
+            case '*':
+                this.mul(i)
                 break;
             default:
                 break;
-        }
+        }        
+        // switch (command) {
+        //     case 'multiply':
+        //         this.doNestedOperation((factor, x) => x * factor)
+        //         break;
+        //     case 'divide':
+        //         this.doNestedOperation((factor, x) => x / factor)
+        //         break;
+        //     case 'power':
+        //         this.doNestedOperation((factor, x) => {
+        //             return Array(Math.abs(factor)).fill(x).reduce((acc, val) => {
+        //                 return factor > 0 ? acc * val : acc / val
+        //             }, 1)
+        //         })
+        //         break;
+        //     default:
+        //         break;
+        // }
     }
 
     methods(){
         return {
-            add: this.siblingOperator.bind(this, (x,y) => x + y),
-            sub: this.siblingOperator.bind(this, (x, y) => x - y),
+            add: this.doOperation.bind(this, (x, y) => x + y),
+            com: this.Commander.bind(this)
         }
     }
 }
@@ -384,12 +307,7 @@ export class NumObj {
                 break;
         }
     }
-    makeParentheses(){
 
-    }
-    undoParentheses(){
-        
-    }
     changeOp(o = 'notSet'){
         if (o === 'notSet') return
         switch (o) {

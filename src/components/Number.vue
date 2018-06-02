@@ -17,10 +17,10 @@
                 </div>
             </div>
             <!-- Nest no fraction -->
-            <div class="flex" v-else-if="showNest">
+            <div class="flex" v-else-if="hasNest">
                 <parentheses :bool='showParentheses'>
                     <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
-                        <div class="object-value" v-if="num.op">
+                        <div class="object-value" v-if="num.op" @click="doOperation(index)">
                             {{num.op, index | operator}}
                         </div>
                         <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
@@ -28,7 +28,7 @@
                 </parentheses>
             </div>            
             <!-- fraction -->
-            <div class="flex" v-else-if="false && showNest">
+            <div class="flex" v-else-if="false && hasNest">
                 <!-- <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
                     {{numberProp.nestOp | operator}}
                 </div> -->
@@ -48,14 +48,6 @@
                 </parentheses> -->
             </div>
 
-        <!-- </div> -->
-        <!-- implement fraction component behavior -->
-        <!-- <div v-else-if="!normal">
-            <span>
-                //
-            </span>
-        </div> -->
-        <!-- exponents, algebriac, other implementations ... -->
     </div>
 </template>
 
@@ -75,29 +67,27 @@ export default {
         }
     },
     methods: {
-        doOperation(id, op){
-            console.log(typeof id)
-            console.log(id)
-            if(typeof id === 'object' || id === true){
-                switch (op) {
-                    case '+':
-                        this.functions.add(id[id.length-1])
-                        break;
-                    case '-':
-                        this.functions.sub(id[id.length-1])
-                        break;
-                    case '*':
-                        this.numberProp.Commander('multiply')
-                        break;
-                    case '/':
-                        console.log('wait for fraction')
-                        break;
-                    default:
-                        console.log('No operator')
-                        break;
-                }
+        doOperation(i = false){
+            if(i !== false){
+                this.numberProp.Commander(i)
+                // switch (op) {
+                //     case '+':
+                //         this.functions.add(id[id.length-1])
+                //         break;
+                //     case '-':
+                //         this.functions.sub(id[id.length-1])
+                //         break;
+                //     case '*':
+                //         this.numberProp.Commander('multiply')
+                //         break;
+                //     case '/':
+                //         console.log('wait for fraction')
+                //         break;
+                //     default:
+                //         console.log('No operator')
+                //         break;
+                // }
             }
-            
             return 
         },
         add(id){
@@ -111,41 +101,31 @@ export default {
                 return i!==0
             }
             return i === 0 && value[0] < 0
-        },  
+        },
+        fraction(i=0){
+            if(this.numberProp.nested.length > 0){
+                return this.numberProp.nested[i+1].op === '/'
+            }
+            return false
+        }
     },
     computed: {
         showParentheses(){
-            if(this.root === true) return false
-            if(this.numberProp.nested.length > 1){
-                return true
-            }else if(this.numberProp.nested.length === 1 && this.numberProp.nested[0].value < 0){
-                return true
-            }
-
-            return false
-        },
-        holder(){
-            if(this.numberProp.holder){ 
-                return true
-            }
-            return false           
-        },         
-        showNest(){
-            if(this.numberProp.nested.length < 1) return false
+            if(this.root === true || this.numberProp.nested.length < 1) return false
+            this.numberProp.nested.some((x,i)=>{
+                if(i === 0 && x.op === '-'){
+                    return true
+                }else if(i !== 0){
+                    return x.op !== '*'
+                }
+            })
+        }, 
+        hasNest(){
             return this.numberProp.nested.length > 0
-        },
-        hideNumber(){
-            if(this.root || this.numberProp.holder) return true
-            return false
         },
         normal(){
             return true
         },
-        fraction(){
-            if(this.root) return 'flex'
-            if(this.showFraction) return 'fr'
-            return 'lol'
-        }
     },
     filters: {
         sign(x){
