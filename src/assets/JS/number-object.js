@@ -8,45 +8,14 @@ export class Num {
         this.viewState = [];
         this.value = val;
         this.pow = [1];
-        this.op = operator; //for sibling interaction sibling[a] op sibling[b]
+        this.op = operator;
         this.factor = mod.factorize(val ? val : 1);
         this.nested = [];
         this.parentMethod;
     }
-
-    setProperty(prop, val = false, unset = false){
-        switch (prop) {
-            case 'op':
-                if(!unset){
-                    this.op = val || this.op;
-                }else {
-                    console.log('op is: ' + this.op)
-                    this.op = !this.op ? this.nestOp || val : this.op;
-                    console.log('nestop is: ' + this.nestOp)
-                    this.nestOp = this.nestOp ? false : this.nestOp;
-                }
-                break;
-            case 'viewState':
-                if (!this.viewState.includes(val) && !this.root) {
-                    this.viewState.push(val)
-                }
-                break;
-            case 'pow':
-                this.pow = [val] || this.pow;
-                break;
-            default:
-                break;
-        }
-        return this
-    }
-
-    setLast(target = false, ...val){
-            if(target && this.nested.length > 0){
-                this.nested[this.nested.length-1].setProperty(...val)
-            }
-    }
-    getLast(target = false){
-        if(target && this.nested.length > 0){
+    
+    getLast(){
+        if(this.nested.length > 0){
             return this.nested[this.nested.length -1]
         }
         return false
@@ -56,6 +25,38 @@ export class Num {
             return this.nested[i]
         }
         return false
+    }
+    
+    setRoot(id) {
+        this.root = true;
+        this.value = false;
+        this.factor = false;
+        this.remove = false;
+        this.op = false;
+        this.id.push(id || 0);
+        return this
+    }
+    setProperty(prop, val = 'unSet', unset = false){
+        switch (prop) {
+            case 'op':
+                this.op = val !== 'unSet' ? val : this.op;
+                break;
+            case 'viewState':
+                if (val !== 'unSet' && !this.viewState.includes(val) && !this.root) {
+                    this.viewState.push(val)
+                }
+                break;
+            case 'pow':
+                this.pow = val !== 'unSet' ? [val] : this.pow;
+                break;
+        }
+        return this
+    }
+
+    setLast(...val){
+            if(this.nested.length > 0){
+                this.getLast().setProperty(...val)
+            }
     }
     setViewState(state = false){
         if(this.root || !state) return
@@ -70,20 +71,57 @@ export class Num {
         // }
     }
 
-    setRoot(id) {
-        this.root = true;
-        this.value = false;
-        this.factor = false;
-        this.remove = false;
-        this.op = false;
-        this.id.push(id || 0);
-        return this
+    setRemove(value = 'notSet'){
+        this.remove = value !=='notSet' ? value : true;
     }
 
+
+    setId(id) {
+        if (!id) return
+        this.id = typeof id === 'object' ? id : [id];
+        if (this.nested.length > 0) {
+            this.nested.forEach((child, i) => {
+                child.setId([...id, 'nested', i])
+            })
+        }
+    }
+
+    setParentMethod(parent = false){
+        if(typeof parent === 'function'){
+            this.parentMethod = parent;
+        }
+
+        if (this.nested.length > 0) {
+            this.nested.forEach(child => {
+                child.setParentMethod(this.addExpression.bind(this))
+            })
+        }
+    }
+
+    setValue(value = 'notSet', f = false){
+        if(this.nested.length > 0){
+            if(arguments.length === 0 && this.nested.length > 0){
+                this.nested.forEach(x=>x.setValue())
+            }
+        }else{
+            if (typeof f === 'function'){
+                this.value = f(value !== 'notSet' ? value : this.value)
+            }else{
+                this.value = value !== 'notSet' ? value : this.value
+            }
+            this.factor = mod.factorize(this.value ? this.value : 1)
+        }
+
+    }
     //accepts single array with all terms inside, like this.nested
-    addExpression(exp, start = false, replace = 0){
-        if(typeof exp !== 'object') return
-        this.nested.splice(start || this.nested.length, replace, ...exp)
+    addExpression(exp = 'notSet', start = false, replace = 0){
+        if(exp === 'notSet') return
+        if (typeof exp === 'object'){
+            console.log(typeof exp)
+            this.nested.splice(start || this.nested.length, replace, ...exp)
+        }else{
+            this.nested.splice(start || this.nested.length, replace)
+        }
         this.setId(this.id)
         this.setParentMethod()
         this.setValue()
@@ -108,10 +146,6 @@ export class Num {
         return this
     }
 
-    setRemove(value = 'notSet'){
-        this.remove = value !=='notSet' ? value : this.remove;
-    }
-
     toInt(){
 
         if(this.nested.length > 0 ){
@@ -124,39 +158,6 @@ export class Num {
         return this
     }
 
-    setId(id) {
-        if (!id) return
-        this.id = typeof id === 'object' ? id : [id];
-        if (this.nested.length > 0) {
-            this.nested.forEach((child, i) => {
-                child.setId([...id, 'nested', i])
-            })
-        }
-    }
-
-    setParentMethod(parent = false){
-        if(typeof parent === 'function'){
-            this.parentMethod = parent;
-        }
-
-        if (this.nested.length > 0) {
-            this.nested.forEach(child => {
-                child.setParentMethod(this.addExpression.bind(this))
-            })
-        }
-    }
-
-    setValue(value = false, f = false){
-        if(this.nested.length > 0){
-            if(arguments.length === 0 && this.nested.length > 0){
-                this.nested.forEach(x=>x.setValue())
-            }
-        }else{
-            this.value = typeof f === 'function' ? f(value || this.value) : value || this.value;
-            this.factor = mod.factorize(this.value ? this.value : 1);
-        }
-
-    }
     isDetached(i = 0){
         let det = []
         if(i + 1 >= this.nested.length){
@@ -171,27 +172,20 @@ export class Num {
         }
         return det
     }
+
     index(){
         return this.id.slice(-1)[0]
     }
+
     add(i){
         let cur = this.nested[i]
         let prev = this.nested[i-1]
-        if(!cur.getNest() && !prev.getLast()){
+        if(!cur.getNest() && !prev.getNest()){
+            if (!this.isDetached(cur.index()).every(x => x === true)) return
             console.log('normal addition')
-            if(cur.op === '+'){
-                if(prev.op === '+'){
-                    prev.setValue(cur.value + prev.value)
-                }else{
-                    prev.setValue(cur.value - prev.value)
-                }
-            }else{
-                if (prev.op === '+') {
-                    prev.setValue(prev.value - cur.value)
-                } else {
-                    prev.setValue(- cur.value - prev.value)
-                }
-            }
+            let newValue = cur.op === '+' ? cur.value : -1 * cur.value
+            newValue += prev.op === '+' ? prev.value : -1 * prev.value
+            prev.setValue(newValue)
             cur.remove = true
             if(prev.value < 0){
                 prev.setValue(-1*prev.value)
@@ -201,15 +195,45 @@ export class Num {
             }else{
                 prev.remove = true
             }
-        }else{
+            if(this.nested.length === 2 && !this.root && !prev.remove){
+                prev.setProperty('op', this.op === prev.op ? '+' : '-')
+                this.parentMethod([prev], this.index(), 1)
+            }
+        } else if (cur.getNest()){
             console.log('nested addition')
+            cur.nested.forEach(x=>{
+                if(['+', '-'].includes(x.op)){
+                    x.setProperty('op', x.op !== cur.op ? '-' : '+')
+                }
+            })
+            this.addExpression(cur.nested, cur.index(), 1)
         }
         this.clearRemoved()
     }
+
     mul(i){
         console.log('multiplier')
-        let first = this.nested[i]
+        let cur = this.nested[i]
+        let prev = this.nested[i - 1]
+        if (!cur.getNest() && !prev.getNest()){
+            prev.setValue(prev.value*cur.value)
+            cur.setRemove()
+        }else{
+            if(cur.getNest() && !prev.getNest()){
+                console.log('current nested, prev not nested')
+                mod.multiplier(prev.value, cur)
+                cur.setProperty('op', prev.op)
+                prev.setRemove()
+            } else if (!cur.getNest() && prev.getNest()){
+                mod.multiplier(cur.value, prev)
+                cur.setRemove() 
+            }else{
+                console.log('not dual nest')
+            }
+        }
+        this.clearRemoved()
     }
+
     doOperation(f = false, i){
         if(!f && !i) return
         let n = this.nested;
@@ -218,6 +242,7 @@ export class Num {
         n.splice(i,1);
         this.setId(this.id);
     }
+    
     //this is not needed, nothing operates on nest anymore
     doNestedOperation(f = false){
         if(!f && this.nested && this.nested.length < 1 ) return
@@ -237,7 +262,7 @@ export class Num {
                 break;
             default:
                 break;
-        }        
+        }
         // switch (command) {
         //     case 'multiply':
         //         this.doNestedOperation((factor, x) => x * factor)

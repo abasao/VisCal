@@ -50,6 +50,7 @@ const State = {
             return x
         })
         this.Store.numbers.push(n);
+        this.Store.numbers[0].setParentMethod()
     }
 }
 

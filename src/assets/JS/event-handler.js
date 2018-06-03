@@ -75,8 +75,6 @@ function addParentheses(state = false){
     }
 }
 
-
-
 function addOperator(o = 'notSet'){
     let S = getState()
     let p = Store.numArray
@@ -183,7 +181,8 @@ export function init() {
             m.forEach(group=>{            
                 Store.numbers[0].addExpression(group)
             })
-            Store.reset();        
+            Store.numbers[0].setParentMethod()
+            Store.reset();      
         }
 
         console.log('printing numbers')

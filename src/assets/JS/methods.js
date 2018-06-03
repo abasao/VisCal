@@ -1,4 +1,5 @@
 'use strict'
+import { Num } from "./number-object";
 export default (() => {
     //start index, array => array of primes
     function prime(i,array){
@@ -51,6 +52,20 @@ export default (() => {
                     this.sanitize(x, obj, i)
                 })
             }
-        }        
+        },
+
+        multiplier(factor = false, source = false){
+            if(!factor || !source) return
+            let m = []
+            source.nested.forEach((x, i) => {
+                ['+', '-'].includes(x.op) ? m.push(i) : false
+            })
+            m.shift()
+            m.push(source.nested.length)
+            m.reverse()
+            m.forEach(x => {
+                source.addExpression([new Num(factor, false, '+', '*')], x, 0)
+            })
+        }
     }
 })()

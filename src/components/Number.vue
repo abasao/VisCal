@@ -111,8 +111,8 @@ export default {
     },
     computed: {
         showParentheses(){
-            if(this.root === true || this.numberProp.nested.length < 1) return false
-            this.numberProp.nested.some((x,i)=>{
+            if(this.root === true) return false
+            return this.numberProp.nested.some((x,i)=>{
                 if(i === 0 && x.op === '-'){
                     return true
                 }else if(i !== 0){
