@@ -8,6 +8,14 @@
         </div>
         <div class="control--row flex-col">
             <div class="flex">
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('expand', $event)">
+                    <span class="btn-value"><i class="fas fa-expand"></i></span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('compress', $event)">
+                    <span class="btn-value"><i class="fas fa-compress"></i></span></div>
+                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('highlight', $event)">
+                    <span class="btn-value"><i class="far fa-lightbulb"></i></span></div>
+            </div>            
+            <div class="flex">
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('×', $event)">
                     <span class="btn-value">×</span></div>
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('÷', $event)">
@@ -15,7 +23,7 @@
                 <div class="control--btn margin-h margin-v btn-style flex" :class="parenthesesState" @click="btnClick('(  )', $event)">
                     <span class="btn-value">(  )</span></div>
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('^', $event)">
-                    <span class="btn-value">^</span></div>
+                    <span class="btn-value"><i class="fas fa-superscript"></i></span></div>
             </div>
             <div class="flex">
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('7', $event)">
