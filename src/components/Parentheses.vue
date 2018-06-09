@@ -17,15 +17,6 @@ export default {
                 return this.bool ? ['(', ')'] : ['','']
             }
             return ['','']
-            // else if(typeof this.bool === 'object'){
-            //     if(this.bool[0] && this.bool[1]){
-            //         return ['(', ')']
-            //     }else if(this.bool[0] && !this.bool[1]){
-            //         return ['(', '']
-            //     }else{
-            //         return ['','']
-            //     }
-            // }
         }
     }
 }

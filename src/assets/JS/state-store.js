@@ -6,18 +6,13 @@ const State = {
     Store: {
         numbers:[],
         numArray: [],
-        aN: (new Num()).setRoot('edit'),
         parentheses: false,
+        expand: false,
+        compress: false,
         btn: {
             btn_num: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
             btn_op: ['+', '-', '*', '/'],
             btn_spec: ['(  )', 'C']
-        },
-        editorControl: {
-            parentheses: true,
-            multi_op: true,
-            div_op: true,
-            pow: false,
         },
         target: false,
         setTarget(T){

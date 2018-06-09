@@ -8,9 +8,9 @@
         </div>
         <div class="control--row flex-col">
             <div class="flex">
-                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('expand', $event)">
+                <div class="control--btn margin-h margin-v btn-style flex" :class="expand" @click="btnClick('expand', $event)">
                     <span class="btn-value"><i class="fas fa-expand"></i></span></div>
-                <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('compress', $event)">
+                <div class="control--btn margin-h margin-v btn-style flex" :class="compress" @click="btnClick('compress', $event)">
                     <span class="btn-value"><i class="fas fa-compress"></i></span></div>
                 <div class="control--btn margin-h margin-v btn-style flex" @click="btnClick('highlight', $event)">
                     <span class="btn-value"><i class="far fa-lightbulb"></i></span></div>
@@ -96,9 +96,24 @@ export default {
                 }else{
                     EventBus.$emit('btn-parentheses', e)
                 }
-            }                
-        },
+            }else if(['expand', 'compress'].includes(btn)){
+                switch (btn) {
+                    case 'expand':
+                        console.log('expanded')
+                        Store.expand = !Store.expand
+                        Store.compress  = Store.expand ? false : Store.compress
+                        break;
+                    case 'compress':
+                        console.log('compressed')
+                        Store.compress = !Store.compress
+                        Store.expand  = Store.compress ? false : Store.expand
+                        break;
+                    default:
+                        break;
+                }
 
+            }              
+        },
         enterEvent(){
             EventBus.$emit('enter', 'nothing')
         },
@@ -108,8 +123,14 @@ export default {
     },
     computed: {
         parenthesesState(){
-            return Store.parentheses ? 'btn-parentheses': ''
-        }
+            return Store.parentheses ? 'btn-pressed': ''
+        },
+        expand(){
+            return Store.expand ? 'btn-pressed': ''
+        },
+        compress(){
+            return Store.compress ? 'btn-pressed': ''
+        },
     }
 }
 </script>
