@@ -1,10 +1,8 @@
 <template>
     <div :class="{'item-style': !root}">
         <!-- implement default component behavior -->        
-        <!-- <div class="" v-if="normal" :class="{flex: root, flex: !root, fr: showFraction, lmao: !true}"> -->
-
             <!-- Number value -->
-            <div class="math--object" @click='showFactor=!showFactor' v-if="numberProp.value">
+            <div class="math--object" @click='clickNum' v-if="numberProp.value">
                 <!-- actual number value -->
                 <div class="object-value object-margin">
                     {{numberProp.value | absolute}}
@@ -26,34 +24,14 @@
                         <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
                     </div>
                 </parentheses>
-            </div>            
-            <!-- fraction -->
-            <div class="flex" v-else-if="false && hasNest">
-                <!-- <div @click="doOperation(true, numberProp.nestOp)" :hidden='root'>
-                    {{numberProp.nestOp | operator}}
-                </div> -->
-                <!-- implement parentheses nest -->
-                <!-- <parentheses :bool='showParentheses'>
-                    <div class="flex " v-for="(frNum, index) in numberProp.nested" :key="index">
-                        <div class="object-value " @click='doOperation(frNum.id, "+")' v-if="showSign(index)">
-                            {{frNum.value | sign}}
-                        </div>
-                        <div v-else-if="showSign(index, frNum.value)">
-                            <span class="negative-sign" >
-                                {{frNum.value | sign}}
-                            </span>
-                        </div>
-                        <number v-bind="{numberProp: frNum, functions: frNum.methods(), root: false}"/>
-                    </div>
-                </parentheses> -->
             </div>
-
     </div>
 </template>
 
 <script>
 'use strict'
 import Parentheses from "./Parentheses";
+import { Store } from "../assets/JS/state-store";
 
 export default {
     name: 'number',
@@ -68,27 +46,25 @@ export default {
     },
     methods: {
         doOperation(i = false){
-            if(i !== false){
+            if(i !== false && !Store.expand && !Store.compress){
+                if(i===0 && !this.numberProp.nested[i].getNest()) return
                 this.numberProp.Commander(i)
-                // switch (op) {
-                //     case '+':
-                //         this.functions.add(id[id.length-1])
-                //         break;
-                //     case '-':
-                //         this.functions.sub(id[id.length-1])
-                //         break;
-                //     case '*':
-                //         this.numberProp.Commander('multiply')
-                //         break;
-                //     case '/':
-                //         console.log('wait for fraction')
-                //         break;
-                //     default:
-                //         console.log('No operator')
-                //         break;
-                // }
+            }else if(i !== false && Store.expand){
+                console.log('expantion is online')
+            }else if(i !== false && Store.compress){
+                console.log('compression is online')
             }
             return 
+        },
+        clickNum(){
+            if (!Store.expand && !Store.compress) {
+                this.showFactor = !this.showFactor
+            }else if(Store.expand){
+                console.log('number expantion is online')
+                this.showFactor = false;
+            }else if(Store.compress){
+                console.log('number compression is online')
+            }
         },
         add(id){
             this.functions.add(id[id.length-1])

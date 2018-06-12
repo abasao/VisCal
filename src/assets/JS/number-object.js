@@ -13,7 +13,7 @@ export class Num {
         this.nested = [];
         this.parentMethod;
     }
-    
+
     getLast(){
         if(this.nested.length > 0){
             return this.nested[this.nested.length -1]
@@ -26,7 +26,7 @@ export class Num {
         }
         return false
     }
-    
+
     setRoot(id) {
         this.root = true;
         this.value = false;
@@ -250,36 +250,25 @@ export class Num {
         this.parentMethod(this.nested, this.id.pop(), 1)
     }
 
-    Commander(i=0){
-        if (this.nested.length < 2) return
-        switch (this.nested[i].op) {
-            case '+':
-            case '-':
+    Commander(i=0, inpt = 'default'){
+        if(inpt === 'default'){
+            if (this.nested.length < 2) return
+            switch (this.nested[i].op) {
+                case '+':
+                case '-':
                 this.add(i)
                 break;
-            case '*':
+                case '*':
                 this.mul(i)
                 break;
-            default:
+                default:
                 break;
+            }
+        }else if(inpt === 'expand'){
+            
+        }else if(inpt === 'compress'){
+
         }
-        // switch (command) {
-        //     case 'multiply':
-        //         this.doNestedOperation((factor, x) => x * factor)
-        //         break;
-        //     case 'divide':
-        //         this.doNestedOperation((factor, x) => x / factor)
-        //         break;
-        //     case 'power':
-        //         this.doNestedOperation((factor, x) => {
-        //             return Array(Math.abs(factor)).fill(x).reduce((acc, val) => {
-        //                 return factor > 0 ? acc * val : acc / val
-        //             }, 1)
-        //         })
-        //         break;
-        //     default:
-        //         break;
-        // }
     }
 
     methods(){
