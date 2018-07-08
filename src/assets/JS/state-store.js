@@ -23,7 +23,8 @@ const State = {
             }
         },
         reset(){
-            this.aN.nested = [];
+            console.log('reset does nothing')
+            // this.aN.nested = [];
         }
     },
     stateHistory: {},

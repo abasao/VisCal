@@ -50,7 +50,7 @@ export default {
                 if(i===0 && !this.numberProp.nested[i].getNest()) return
                 this.numberProp.Commander(i)
             }else if(i !== false && Store.expand){
-                console.log('expantion is online')
+                console.log('expansion is online')
             }else if(i !== false && Store.compress){
                 console.log('compression is online')
             }
@@ -60,17 +60,12 @@ export default {
             if (!Store.expand && !Store.compress) {
                 this.showFactor = !this.showFactor
             }else if(Store.expand){
-                console.log('number expantion is online')
+                console.log('number expansion is online')
+                this.numberProp.expand()
                 this.showFactor = false;
             }else if(Store.compress){
                 console.log('number compression is online')
             }
-        },
-        add(id){
-            this.functions.add(id[id.length-1])
-        },
-        multiply(){
-            this.numberProp.Commander('multiply')
         },
         showSign(i,...value){
             if(typeof i === 'number' && value.length === 0){  

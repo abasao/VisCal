@@ -15,13 +15,13 @@ export class Num {
     }
 
     getLast(){
-        if(this.nested.length > 0){
+        if(this.nested.length){
             return this.nested[this.nested.length -1]
         }
         return false
     }
     getNest(i=0){
-        if(this.nested.length > 0 && i < this.nested.length){
+        if(this.nested.length && this.nested.length > i){
             return this.nested[i]
         }
         return false
@@ -54,7 +54,7 @@ export class Num {
     }
 
     setLast(...val){
-            if(this.nested.length > 0){
+            if(this.nested.length){
                 this.getLast().setProperty(...val)
             }
     }
@@ -91,7 +91,7 @@ export class Num {
             this.parentMethod = parent;
         }
 
-        if (this.nested.length > 0) {
+        if (this.nested.length) {
             this.nested.forEach(child => {
                 child.setParentMethod(this.addExpression.bind(this))
             })
@@ -100,7 +100,7 @@ export class Num {
 
     setValue(value = 'notSet', f = false){
         if(this.nested.length > 0){
-            if(arguments.length === 0 && this.nested.length > 0){
+            if(!arguments.length){
                 this.nested.forEach(x=>x.setValue())
             }
         }else{
@@ -114,13 +114,12 @@ export class Num {
 
     }
     //accepts single array with all terms inside, like this.nested
-    addExpression(exp = 'notSet', start = false, replace = 0){
+    addExpression(exp = 'notSet', start = this.nested.length, replace = 0){
         if(exp === 'notSet') return
         if (typeof exp === 'object'){
-            console.log(typeof exp)
-            this.nested.splice(start || this.nested.length, replace, ...exp)
+            this.nested.splice(start, replace, ...exp)
         }else{
-            this.nested.splice(start || this.nested.length, replace)
+            this.nested.splice(start, replace)
         }
         this.setId(this.id)
         this.setParentMethod()
@@ -130,7 +129,7 @@ export class Num {
     addChild(...param) {
         if (!param) return
         param.forEach(x => {
-            x = typeof x === 'object' ? x : [x]
+            x = [].concat(x)
             this.nested.push((new Num(...x)))
         })
         this.setId(this.id);
@@ -139,7 +138,7 @@ export class Num {
     }
 
     clearRemoved(){
-        if(this.nested.length > 0){
+        if(this.nested.length){
             this.nested = this.nested.filter(x => x.remove !== true);
         }
         this.setId(this.id);
@@ -148,7 +147,7 @@ export class Num {
 
     toInt(){
 
-        if(this.nested.length > 0 ){
+        if(this.nested.length){
             this.nested.forEach(child => {
                 child.toInt()
             });
@@ -190,7 +189,7 @@ export class Num {
             if(prev.value < 0){
                 prev.setValue(-1*prev.value)
                 prev.op = '-'
-            }else if(prev.value > 0){
+            }else if(prev.value){
                 prev.op = '+'
             }else{
                 prev.remove = true
@@ -237,7 +236,7 @@ export class Num {
     doOperation(f = false, i){
         if(!f && !i) return
         let n = this.nested;
-        if (n[i - 1].nested.length > 0 || n[i].nested.length>0) return
+        if (n[i - 1].nested.length > 0 || n[i].nested.length > 0) return
         n[i - 1].setValue(f(parseInt(n[i - 1].value, 10), parseInt(n[i].value, 10)))
         n.splice(i,1);
         this.setId(this.id);
@@ -249,7 +248,9 @@ export class Num {
         this.nested.forEach(x => x.setValue(false, f.bind(null, this.value)))
         this.parentMethod(this.nested, this.id.pop(), 1)
     }
-
+    expand(){
+        this.parentMethod([mod.expand(this)], this.id[this.id.length-1], 1)
+    }
     Commander(i=0, inpt = 'default'){
         if(inpt === 'default'){
             if (this.nested.length < 2) return
@@ -274,7 +275,8 @@ export class Num {
     methods(){
         return {
             add: this.doOperation.bind(this, (x, y) => x + y),
-            com: this.Commander.bind(this)
+            com: this.Commander.bind(this),
+            // expand: mod.expand(this)
         }
     }
 }

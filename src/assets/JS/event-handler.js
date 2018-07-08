@@ -108,7 +108,6 @@ function addOperator(o = 'notSet'){
 function Operator(o = 'notSet') {
     let S = getState()
     let p = Store.numArray
-    let len = p.length
     let lastNum = S.last.lastNum    
     if (o === 'notSet' || Store.target) return
     if (!Store.parentheses) {
@@ -137,8 +136,6 @@ export function init() {
         console.log(NumObj)
         let S = getState()
         let p = Store.numArray
-        let len = p.length
-        let lastNum = S.last.lastNum  
         if(!S.last.hasValue){
             if (!S.last.hasNest){
                 p.pop()
@@ -155,15 +152,15 @@ export function init() {
 
             let n = []
             p.forEach(x=>{
-                if (x.value === false && x.nested.length > 0) {
-                n.push(new Num(false, false, '+', x.op))
-                n[n.length-1].addChild(...x.nested.map(y=>{
-                    console.log(y)
-                    return [y.value, false, '+', y.op]
-                }))
-            } else {
-                n.push(new Num(x.value, false, '+', x.op))
-            }            
+                if (x.value === false && x.nested.length) {
+                    n.push(new Num(false, false, '+', x.op))
+                    n[n.length-1].addChild(...x.nested.map(y=>{
+                        console.log(y)
+                        return [y.value, false, '+', y.op]
+                    }))
+                } else {
+                    n.push(new Num(x.value, false, '+', x.op))
+                }            
             })
             let m = n.reduce((acc, cur, i)=>{
                 //doesnt account for parentheses forced groups, 
