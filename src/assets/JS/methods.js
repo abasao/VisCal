@@ -51,6 +51,13 @@ export default (() => {
         }
     }
 
+    function compressable(num){
+        return {
+            sameValueOp: num.nested.every(x => x.value === num.nested[0].value && x.op === num.nested[0].op),
+            plusMinus: num.nested.every(x => ['+', '-'].includes(x.op))
+        }
+    }
+
     function multiplier(factor = false, source = false){
         if(!factor || !source) return
         let m = []
@@ -73,12 +80,26 @@ export default (() => {
         let newArray = Array(3).fill(Math.floor(n / 3))
         return factorize(n).includes(3) ? newArray : newArray.concat(n - 3*newArray[0])
     }
+
     function expand(num = false){
-        if(!num || num.value < 2) return num
+        if(!num || num.value < 3) return num
         return (new Num(false,false, '+', num.op))
                 .addChild(...divide(num.value).map(n => [n, false, '+', '+']))
     }
+    function compress(num = false){
+        if (!num || num.nested.length < 2) return num
+        if (compressable(num).sameValueOp){
+            let newNum = new Num(false, false, '+', num.op)
+            if (num.nested[0].value === 1) return newNum.addChild([num.nested.length, false, '+', num.nested[0].op])
+            return newNum
+                .addChild([num.nested.length, false, '+', num.nested[0].op], [num.nested[0].value, false, '+', '*'])
+        } else if (compressable(num).plusMinus){
+            let nFactor = factorize(num.nested.reduce((acc, val)=> acc + val.value, 0))
 
+            return (new Num(false, false, '+', num.op))
+                .addChild([nFactor.pop(), false, '+', '+'], [nFactor.reduce((acc, val) => acc * val, 1), false, '+', '*'])
+        } else return num
+    }
     return {
         factorArray,
         primeFactor,
@@ -88,5 +109,6 @@ export default (() => {
         multiplier,
         sanitize,
         expand,
+        compress
     }
 })()

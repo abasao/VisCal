@@ -15,13 +15,13 @@
                 </div>
             </div>
             <!-- Nest no fraction -->
-            <div class="flex" v-else-if="hasNest">
+            <div class="flex" :class="highlight" @mouseover.stop="hover" @mouseout.stop="hover" @click.stop="nestOp" v-else-if="hasNest">
                 <parentheses :bool='showParentheses'>
                     <div class="flex " v-for="(num, index) in numberProp.nested" :key="index">
                         <div class="object-value" v-if="num.op" @click="doOperation(index)">
                             {{num.op, index | operator}}
                         </div>
-                        <number v-bind="{numberProp: num, functions: num.methods(), root: false}"/>
+                        <number v-bind="{numberProp: num, root: false}"/>
                     </div>
                 </parentheses>
             </div>
@@ -35,16 +35,26 @@ import { Store } from "../assets/JS/state-store";
 
 export default {
     name: 'number',
-    props: ['numberProp', 'functions', 'root'],
+    props: ['numberProp', 'root'],
     components: {
         'parentheses': Parentheses
     },
     data(){
         return {
             showFactor: false,
+            hovering: false,
         }
     },
     methods: {
+        hover(e){
+            e.stopPropagation()
+            this.hovering = !this.hovering
+        },
+        nestOp(){
+            if(!Store.compress) return
+            this.numberProp.compress()
+            this.showFactor = false;
+        },
         doOperation(i = false){
             if(i !== false && !Store.expand && !Store.compress){
                 if(i===0 && !this.numberProp.nested[i].getNest()) return
@@ -91,6 +101,9 @@ export default {
                 }
             })
         }, 
+        highlight(){
+            return !this.root && this.hovering ? 'highlight' : ''
+        },
         hasNest(){
             return this.numberProp.nested.length > 0
         },

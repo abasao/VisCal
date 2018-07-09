@@ -146,7 +146,6 @@ export class Num {
     }
 
     toInt(){
-
         if(this.nested.length){
             this.nested.forEach(child => {
                 child.toInt()
@@ -248,8 +247,12 @@ export class Num {
         this.nested.forEach(x => x.setValue(false, f.bind(null, this.value)))
         this.parentMethod(this.nested, this.id.pop(), 1)
     }
+
     expand(){
         this.parentMethod([mod.expand(this)], this.id[this.id.length-1], 1)
+    }
+    compress(){
+        this.parentMethod([mod.compress(this)], this.id[this.id.length - 1], 1)
     }
     Commander(i=0, inpt = 'default'){
         if(inpt === 'default'){
